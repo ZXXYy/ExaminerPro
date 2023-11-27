@@ -14,11 +14,14 @@ import re
 import string
 import random
 import sys
+import logging
 import xml.etree.cElementTree as ET
 from collections import defaultdict
 from itertools import takewhile
 from z3 import *
 from functools import reduce
+from tqdm import tqdm
+from utils import configure_logging
 
 include_regex = None
 exclude_regex = None
@@ -259,7 +262,7 @@ def handleOneCaseStatement(code):
     conditions = []
     case_variable = re.findall(r'case (.*) of',code)
     if len(case_variable) > 0:
-        print(case_variable[0])
+        logging.debug(case_variable[0])
     for line in code.split('\n'):
         value = ""
         results = re.findall("when\s+\'([01x\s]+)\'",line)
@@ -701,6 +704,7 @@ class InstEncoding:
 
 
 
+
     def isThisEncoding(self,inst):
         flag = True 
         for field in self.fields:
@@ -775,7 +779,7 @@ class InstEncoding:
 
 
     def addToField(self,field_name,value):
-        print("add {} to field {}".format(value,field_name))
+        logging.debug("add {} to field {}".format(value,field_name))
         for field in self.fields:
             if field.name == field_name:
                 value = bin(value)[2:].zfill(field.bits)
@@ -850,7 +854,7 @@ class InstEncoding:
     def patchReadAPSR(self,atomicCondition):
         addedconditions = []
         results = re.findall("SysRegReadCanWriteAPSR\((\w)+\,\s+ThisInstr\(\)\)",atomicCondition)
-        print(results)
+        logging.debug(results)
         for result in results:
             addedconditions.append("%s == 14"%(result[0]))
             addedconditions.append("opc1 == 0")
@@ -897,7 +901,7 @@ class InstEncoding:
 
     def extractAtomicConditions(self,conditions):
         allAtomicConditions = []
-        print(conditions)
+        logging.debug(f"extractAtomicConditions: {conditions}")
         for condition in conditions:
             #condition = removeBrackets(condition)
             split_ors = condition.split("||")
@@ -970,13 +974,15 @@ class InstEncoding:
 
 
 
-    def generate_insts(self):
+    def generate_insts(self, strategy):
         results = []
         for field in self.fields:
             field.get_fuzzlist()
-        for condition in self.conditions:
-            results = self.solve(condition)
-        
+        if strategy == "symbolic":
+            for condition in self.conditions:
+                results = self.solve(condition)
+        elif strategy == "random-symbols":
+            pass # do nothing
         insts = [""]
         for field in self.fields:
             insts = extend_seedlist(insts,field.fuzz_list)
@@ -1014,7 +1020,7 @@ class InstEncoding:
 
 
     def meet_constraint(self,condition,instruction):
-        print("whether %s meets %s for %s"%(instruction,condition,self.name))
+        logging.debug("whether %s meets %s for %s"%(instruction,condition,self.name))
         approve = False
         negate_approve = False
         symbols = self.decode_inst(instruction)
@@ -1027,14 +1033,14 @@ class InstEncoding:
         variables,constraints = self.get_variable_constraints(condition)
 
         for v in variables:
-            print("related variable %s"%v)
+            logging.debug("related variable %s"%v)
             v_field =  self.containField(v)
             if v_field == None:
                 if v.endswith("()"):
                     continue 
                 if v == "True" or v == "False":
                     continue 
-                print("init variable %s = BitVec('%s',32)"%(v,v))
+                logging.debug("init variable %s = BitVec('%s',32)"%(v,v))
                 exec("%s = BitVec('%s',32)"%(v,v))
 
         for field in self.fields:
@@ -1089,15 +1095,15 @@ class InstEncoding:
         global all_solved_constraint
 
         all_constraint += 2
-        print("Solve the condition {}-------------------------".format(condition))
+        logging.debug("Solve the condition {}-------------------------".format(condition))
         if "operand[bit_pos] == bit_val" in condition.statement:
             return
         z3_s = Solver()
         
         self.analyzed_condition = []
         variables,constraints = self.get_variable_constraints(condition)
-        print(variables)
-        print(constraints)
+        logging.debug(variables)
+        logging.debug(constraints)
 
         flag = False
         
@@ -1362,7 +1368,7 @@ class Instruction:
                 previous_clauses.add(clause)
 
 
-    def emit_insts(self,file,target_set):
+    def emit_insts(self,file,target_set, strategy):
         global all_encoding
         global all_insts
         for (inm, insn_set, fields, dec) in self.encs:
@@ -1370,8 +1376,9 @@ class Instruction:
                 continue
             all_encoding += 1
             instencoding = InstEncoding(inm,self.post,fields,dec,self.exec)
-            insts = instencoding.generate_insts()
+            insts = instencoding.generate_insts(strategy)
             all_insts += len(insts)
+
             #insts = self.fuzz_insts(fields,dec)
             for inst in insts:
                 if insn_set == "A64":
@@ -1447,8 +1454,8 @@ class Instruction:
 
         fuzz_field = self.add_extra_list(fuzz_field,dec)
 
-        print(fuzz_field)
-        print("")
+        logging.debug(fuzz_field)
+        logging.debug("")
         # travese all the fuzz_list
         insts = ['']
         for field in fields:
@@ -1461,7 +1468,7 @@ class Instruction:
         # 1.handle the decoding asl code
         # 1.1: conduct data flow analysis so that the execute asl can recognize the value name
         alias = analyzeDecodeASL(dec.code) 
-        print(alias)
+        logging.debug(alias)
         # 1.2: collect the branch statement: if then; case of;
         print("Now adding the extra list with program analysis")
         conditions = extractConditions(dec_code)
@@ -2093,6 +2100,12 @@ def main():
     global demangle_instr
 
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--log_level",
+        choices=["debug", "info", "warning", "error", "critical"],
+        default="info",
+        help="Set the logging level (default: info)",
+    )
     parser.add_argument('--verbose', '-v', help='Use verbose output',
                         action = 'count', default=0)
     parser.add_argument('--altslicesyntax', help='Convert to alternative slice syntax',
@@ -2110,10 +2123,12 @@ def main():
     parser.add_argument(
         "--encoding",
         help="Optional list of architecture states to extract",
-        choices=["T16", "T32", "A32"],
+        choices=["T16", "T32", "A32", "A64"],
         default="T32",
     )
-
+    parser.add_argument('--strategy', help='Optional list of strategies to generate instructions',
+                        choices=["random", "random-symbols", "symbolic"], default="symbolic")
+    
     parser.add_argument('--arch', help='Optional list of architecture states to extract',
                         choices=["AArch32", "AArch64"], default=[], action='append')
     parser.add_argument('--include', help='Regex to select instructions by name',
@@ -2121,6 +2136,9 @@ def main():
     parser.add_argument('--exclude', help='Regex to exclude instructions by name',
                         metavar='REGEX', default=None)
     args = parser.parse_args()
+
+    # Configure logging based on the command-line argument
+    configure_logging(args.log_level)
 
     alt_slice_syntax = args.altslicesyntax
     if args.include is not None:
@@ -2191,16 +2209,16 @@ def main():
             try:
                 filter = json.load(f)
             except ValueError as err:
-                print(err)
+                logging.error(err)
                 sys.exit(1)
             for fun in filter['roots']:
-                if fun not in chunks: print("Warning: unknown root", fun)
+                if fun not in chunks: logging.warning("Warning: unknown root", fun)
                 roots.add(fun)
             for fun in filter['cuts']:
-                if fun not in chunks: print("Warning: unknown cut", fun)
+                if fun not in chunks: logging.warning("Warning: unknown cut", fun)
                 cuts.add(fun)
             for fun in filter['canaries']:
-                if fun not in chunks: print("Warning: unknown canary", fun)
+                if fun not in chunks: logging.warning("Warning: unknown canary", fun)
                 canaries.add(fun)
 
             # treat instrs as a list of rexexps
@@ -2310,15 +2328,20 @@ def main():
             print('\nend ast', file=outf)
 
     
-    return instrs, args.encoding
+    return instrs, args.encoding, args.strategy
 
 
 
 def generate_insts_from_asl(instrs, output, inst_mode):
     with open(output,"w") as f:
         for i in instrs:
-            i.emit_insts(f,inst_mode)
+            i.emit_insts(f,inst_mode, "symbolic")
 
+def generate_randomsymbols_insts(instrs, output, inst_mode):
+     with open(output,"w") as f:
+        for i in instrs:
+            i.emit_insts(f,inst_mode, "random-symbols")
+    
 
 
 def generate_specific_insts(instrs,inst_mode,inst_name):
@@ -2330,7 +2353,7 @@ def generate_specific_insts(instrs,inst_mode,inst_name):
                 continue
             instencoding = InstEncoding(inm,i.post,fields,dec,i.exec)
             instencoding.generate_insts()
-            print(inm)
+            # print(inm)
  
 
 
@@ -2349,7 +2372,7 @@ def cover_constraint(instrs,input_file,inst_set):
             inst_covered_constraints = instencoding.covered_constraints(all_insts)
             all_rand_constraints[inm] = inst_covered_constraints
 
-    print(all_rand_constraints)
+    logging.debug(all_rand_constraints)
 
 
 def random_valid_insts(instrs,input_file,output_file,inst_set):
@@ -2357,7 +2380,7 @@ def random_valid_insts(instrs,input_file,output_file,inst_set):
     lines = f.readlines()
     f.close()
     f_v = open(output_file,"w")
-    for i in instrs:
+    for i in tqdm(instrs):
         for (inm, insn_set, fields, dec) in i.encs:
             if insn_set != inst_set:
                 continue
@@ -2365,7 +2388,7 @@ def random_valid_insts(instrs,input_file,output_file,inst_set):
             for l in lines:
                 if instencoding.isThisEncoding(l.strip()):
                     f_v.write("%s %s\n"%(inm, l.strip()))
-                    print("identified %s %s\n"%(inm, l.strip()))
+                    logging.debug("identified %s %s\n"%(inm, l.strip()))
                     lines.remove(l)
     f_v.close()               
 
@@ -2383,7 +2406,7 @@ def generate_random_insts(number,output_file,inst_set):
             b = b[:16]+"0"*16
         results.add(b)
         if len(results) % 100 == 0:
-            print("generate %d samples"%len(results))
+            logging.debug("generate %d samples"%len(results))
         if len(results) == sample_num:
             break 
     for b in list(results):
@@ -2406,14 +2429,14 @@ def random_covered_constraints(instrs,input_file,output_file,target_set):
 
     all_rand_constraints = {}
 
-    for i in instrs:
+    for i in tqdm(instrs):
         for (inm, insn_set, fields, dec) in i.encs:
             if insn_set != target_set:
                 continue
             if inm not in valid_insts:
                 continue
             instencoding = InstEncoding(inm,i.post,fields,dec,i.exec)
-            instencoding.generate_insts()
+            instencoding.generate_insts("symbolic")
             all_insts = valid_insts[inm]
             inst_covered_constraints = instencoding.covered_constraints(all_insts)
             all_rand_constraints[inm] = inst_covered_constraints
@@ -2440,7 +2463,7 @@ def filter_orig_a32(instrs,input_file,output_file,target_set):
             continue
         if  all_instencodings[encoding+"_"+inst_set].isThisEncoding(inst):
             f.write("%s %s %s\n"%(encoding,inst_set,inst))
-            print("%s %s %s\n"%(encoding,inst_set,inst))
+            logging.debug("%s %s %s\n"%(encoding,inst_set,inst))
     f.close()
     #print(all_instencodings["aarch32_VQSHL_r_T1A1_A_A32"].isThisEncoding("11110010000000000101010010111101"))
 
@@ -2630,23 +2653,38 @@ def patch():
     """
 
 
-def generate_a32_random_all(instrs,index):
-    generate_random_insts(870221,"bin/a32_rand.txt"+str(index),"A32")
-    random_valid_insts(instrs,"bin/a32_rand.txt"+str(index),"bin/a32_rand_valid.txt"+str(index),"A32")
-    random_covered_constraints(instrs,"bin/a32_rand_valid.txt"+str(index),"bin/a32_rand_valid_constraint.json"+str(index),"A32")
+def generate_insts_from_random(instrs,output, encoding):
+    index = 0
+    sampleNum = {
+        "A32": 870221,
+        "T32": 808770,
+        "T16": 958,
+        "A64": 1094700,
+    }
+    generate_random_insts(sampleNum[encoding], output, encoding)
+    random_valid_insts(instrs, output, f"{encoding}_rand_valid.txt", encoding)
+    random_covered_constraints(
+        instrs,
+        f"{encoding}_rand_valid.txt",
+        f"{encoding}_rand_valid_constraint.json",
+        encoding
+    )
+    # generate_random_insts(870221,"a32_rand.txt"+str(index),"A32")
+    # random_valid_insts(instrs,"a32_rand.txt"+str(index),"a32_rand_valid.txt"+str(index),"A32")
+    # random_covered_constraints(instrs,"a32_rand_valid.txt"+str(index),"a32_rand_valid_constraint.json"+str(index),"A32")
     
-    print("finish %d A32"%index)
-    generate_random_insts(808770,"bin/t32_rand.txt"+str(index),"T32")
-    random_valid_insts(instrs,"bin/t32_rand.txt"+str(index),"bin/t32_rand_valid.txt"+str(index),"T32")
-    random_covered_constraints(instrs,"bin/t32_rand_valid.txt"+str(index),"bin/t32_rand_valid_constraint.json"+str(index),"T32")
+    # logging.info("finish %d A32"%index)
+    # generate_random_insts(808770,"t32_rand.txt"+str(index),"T32")
+    # random_valid_insts(instrs,"t32_rand.txt"+str(index),"t32_rand_valid.txt"+str(index),"T32")
+    # random_covered_constraints(instrs,"t32_rand_valid.txt"+str(index),"t32_rand_valid_constraint.json"+str(index),"T32")
 
-    print("finish %d T32"%index)
+    # logging.info("finish %d T32"%index)
 
-    generate_random_insts(958,"bin/t16_rand.txt"+str(index),"T16")
-    random_valid_insts(instrs,"bin/t16_rand.txt"+str(index),"bin/t16_rand_valid.txt"+str(index),"T16")
-    random_covered_constraints(instrs,"bin/t16_rand_valid.txt"+str(index),"bin/t16_rand_valid_constraint.json"+str(index),"T16")
+    # generate_random_insts(958,"t16_rand.txt"+str(index),"T16")
+    # random_valid_insts(instrs,"t16_rand.txt"+str(index),"t16_rand_valid.txt"+str(index),"T16")
+    # random_covered_constraints(instrs,"t16_rand_valid.txt"+str(index),"t16_rand_valid_constraint.json"+str(index),"T16")
 
-    print("finish %d T16"%index)
+    # logging.info("finish %d T16"%index)
             
 
     #generate_random_insts(1094700,"bin/a64_rand.txt","A64")
@@ -2654,16 +2692,16 @@ def generate_a32_random_all(instrs,index):
     #random_covered_constraints(instrs,"bin/a64_rand_valid.txt","bin/a64_rand_valid_constraint.json","A64"):
  
 def generate_a64_random_all(instrs,index):
-    generate_random_insts(1094700,"bin/a64_rand.txt"+str(index),"A64")
-    random_valid_insts(instrs,"bin/a64_rand.txt"+str(index),"bin/a64_rand_valid.txt"+str(index),"A64")
-    random_covered_constraints(instrs,"bin/a64_rand_valid.txt"+str(index),"bin/a64_rand_valid_constraint.json"+str(index),"A64")
+    generate_random_insts(1094700,"a64_rand.txt"+str(index),"A64")
+    random_valid_insts(instrs,"a64_rand.txt"+str(index),"a64_rand_valid.txt"+str(index),"A64")
+    random_covered_constraints(instrs,"a64_rand_valid.txt"+str(index),"a64_rand_valid_constraint.json"+str(index),"A64")
 
 def calculate_random():
     results = {}
     for valid in ["a32","t32","t16","a64"]:
         if valid not in results:
             results[valid] = {}
-        print(valid)
+        logging.debug(valid)
         number = []
         cover_encoding = []
         cover_instruction = []
@@ -2671,12 +2709,12 @@ def calculate_random():
         for i in range(10):
             if i not in results[valid]:
                 results[valid][i] = {}
-            valid_file = "bin/%s_rand_valid.txt%d"%(valid,i)
+            valid_file = "%s_rand_valid.txt%d"%(valid,i)
             with open(valid_file,"r") as f:
                 lines = f.readlines()
                 results[valid][i]["number"] = len(lines)
-            print(valid_file)
-            valid_constraint_file = "bin/%s_rand_valid_constraint.json%d"%(valid,i)
+            logging.debug(valid)
+            valid_constraint_file = "%s_rand_valid_constraint.json%d"%(valid,i)
             tmp = set()
             with open(valid_constraint_file,"r") as f:
                 constraint_file_data = json.load(f)
@@ -2692,28 +2730,28 @@ def calculate_random():
 
 
 
-        print("number:")
-        print(max(number))
-        print(min(number))
-        print(sum(number)/len(number))
+        logging.info("number:")
+        logging.info(max(number))
+        logging.info(min(number))
+        logging.info(sum(number)/len(number))
 
-        print("cover_encoding:")
-        print(max(cover_encoding))
-        print(min(cover_encoding))
-        print(sum(cover_encoding)/len(cover_encoding))
-
-
-        print("cover_constraint")
-        print(max(cover_constraint))
-        print(min(cover_constraint))
-        print(sum(cover_constraint)/len(cover_constraint))
+        logging.info("cover_encoding:")
+        logging.info(max(cover_encoding))
+        logging.info(min(cover_encoding))
+        logging.info(sum(cover_encoding)/len(cover_encoding))
 
 
+        logging.info("cover_constraint")
+        logging.info(max(cover_constraint))
+        logging.info(min(cover_constraint))
+        logging.info(sum(cover_constraint)/len(cover_constraint))
 
-        print("cover_instruction")
-        print(max(cover_instruction))
-        print(min(cover_instruction))
-        print(sum(cover_instruction)/len(cover_instruction))
+
+
+        logging.info("cover_instruction")
+        logging.info(max(cover_instruction))
+        logging.info(min(cover_instruction))
+        logging.info(sum(cover_instruction)/len(cover_instruction))
 
     return results
 
@@ -2735,7 +2773,7 @@ def tests_covered_constraints(instrs,input_file,output_file,target_set):
             valid_insts[encoding] = []
         valid_insts[encoding].append(inst)
 
-    print(valid_insts.keys())
+    logging.info(valid_insts.keys())
     all_rand_constraints = {}
 
     for i in instrs:
@@ -2744,7 +2782,7 @@ def tests_covered_constraints(instrs,input_file,output_file,target_set):
             if insn_set != target_set:
                 continue
             if inm not in valid_insts:
-                print(inm)
+                logging.debug(inm)
                 continue
             instencoding = InstEncoding(inm,i.post,fields,dec,i.exec)
             instencoding.generate_insts()
@@ -2770,7 +2808,7 @@ def filter_unpredictables(instrs,input_file,output_file,mode):
             #instencoding.unpredicatableConditions(dec.code)
             all_encodings[deslash(inm)] = instencoding
     
-    print(all_encodings)
+    logging.debug(all_encodings)
     with open(input_file) as f:
         result = json.load(f)
         for k in result:
@@ -2789,7 +2827,7 @@ def filter_unpredictables(instrs,input_file,output_file,mode):
                         #all_valid_insts[case["id"]] = bin(int('0x'+case["machine_code"],16))[2:]
 
 
-    print(all_unpredicatables)
+    logging.debug(all_unpredicatables)
     with open(output_file,"w") as outfile:
         json.dump(all_unpredicatables,outfile,indent = 4)
 
@@ -2797,35 +2835,34 @@ def filter_unpredictables(instrs,input_file,output_file,mode):
 
 
 if __name__ == "__main__":
-    instrs, encoding = main()
+    instrs, encoding, strategy = main()
     tmp = 0
     for i in instrs:
         for (inm, insn_set, fields, dec) in i.encs:
             if insn_set == "T32" or insn_set == "T16":
                 tmp += 1
-                break
-    print(tmp)
-    
-    generate_a32_random_all(instrs)
-    #filter_orig_a32(instrs,"bin/a32_orig_test.txt","bin/t16_filter_test.txt","T16")
+    # print(tmp)
+
+    if strategy == "random":
+        generate_insts_from_random(instrs, f"{encoding}.txt", encoding)    
+        # filter_orig_a32(instrs,"bin/a32_orig_test.txt","bin/t16_filter_test.txt","T16")
+       
+    elif strategy == "symbolic":
+        generate_insts_from_asl(instrs, f"{encoding}.txt", encoding)
+        #generate_specific_insts(instrs,"A32","aarch32/VLD4_m/T1A1_A")
+        #results = calculate_random()
+        #print(results)
+    elif strategy == "random-symbols":
+        generate_randomsymbols_insts(instrs, f"{encoding}.txt", encoding)
+        pass
 
     #tests_covered_constraints(instrs,"bin/a64_filter_test.txt","bin/a64_tmp.json","A64")
     #filter_unpredictables(instrs,"bin/arm6_arm.json","bin/arm6_arm_filter.json","A32")
-    
-    start = time.time()
-    generate_insts_from_asl(instrs, f"{encoding}.txt", encoding)
-    print(time.time() - start)
-    #generate_specific_insts(instrs,"A32","aarch32/VLD4_m/T1A1_A")
-    #results = calculate_random()
-    #print(results)
-
   
+    logging.info(f"all_constraint: {all_constraint}")
+    logging.info(f"all_valid_constraint: {all_valid_constraint}")
+    logging.info(f"all_solved_constraint: {all_solved_constraint}")
 
-    print(all_constraint)
-    print(all_valid_constraint)
-    print(all_solved_constraint)
-   #print(all_valid_constraint)
-    #print(all_solved_constraint)
 ########################################################################
 # End
 ########################################################################

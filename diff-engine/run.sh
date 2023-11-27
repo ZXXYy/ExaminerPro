@@ -1,6 +1,6 @@
 #!/bin/bash
-if [ "$#" -ne 4 ]; then
-    echo "Usage: $0 <env> <mode> <cpu> <encoding>"
+if [ "$#" -ne 5 ]; then
+    echo "Usage: $0 <env> <mode> <cpu> <encoding> <strategy>"
     exit 1
 fi
 if [ "$1" != "physical" ] && [ "$1" != "qemu" ] && [ "$1" != "angr" ] && [ "$1" != "unicorn" ]; then
@@ -19,11 +19,20 @@ if [ "$4" != "A32" ] && [ "$4" != "T32" ] && [ "$4" != "T16" ] && [ "$4" != "A64
     echo "Encoding must be one of: A32, T32, T16, A64"
     exit 1
 fi
+if [ "$5" != "random" ] && [ "$5" != "symbolic" ] && [ "$5" != "random-symbols" ]; then
+    echo "Mode must be one of: random, random-symbols, symbolic"
+    exit 1
+fi
 
 echo "[1] Testing Instructions in $1 $2-level for $3-$4..."
-python3 $2-level/run_$1.py ../test-generator/build/$4/testcases --env $1 --cpu $3
+python3 $2-level/run_$1.py ../test-generator/build/$5/$4/testcases --env $1 --cpu $3
 
 echo "[2] Moving outputs to build"
-mkdir build/$3-$4
-cp -r state_$1/ build/$3-$4/state_$1
+if [ ! -d "build/$5" ]; then
+    mkdir "build/$5"
+fi
+if [ ! -d "build/$5/$3-$4" ]; then
+    mkdir "build/$5/$3-$4"
+fi
+cp -r state_$1/ build/$5/$3-$4/state_$1
 rm -r state_$1/ 
