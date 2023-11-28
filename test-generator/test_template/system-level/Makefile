@@ -20,7 +20,7 @@ build: ktemplate.c ktemplate_dump.c
 	mv ktemplate.ko ktemplate_thumb.ko
 	mv ktemplate_dump.ko ktemplate_dump_thumb.ko
 
-	make ARCH=arm64 CROSS_COMPILE=$(CROSS-ARM64) KCFLAGS=$(KCFLAGS-ARM64) -C $(KERNEL_DIR-ARM64) M=$(PWD) modules
+	make ARCH=arm64 CROSS_COMPILE=$(CROSS-ARM64) KCFLAGS=$(KCFLAGS-ARM64) -C $(KERNEL-DIR-ARM64) M=$(PWD) modules
 	rm .*.cmd *.o *.mod.c  *.mod modules.order Module.symvers
 	mv ktemplate.ko ktemplate_arm64.ko
 	mv ktemplate_dump.ko ktemplate_dump_arm64.ko
@@ -44,8 +44,8 @@ linux-arm64:
 	cd $(KERNEL-DIR-ARM64) && \
 	make ARCH=arm64 CROSS_COMPILE=$(CROSS-ARM64) bcm2711_defconfig && \
 	make ARCH=arm64 CROSS_COMPILE=$(CROSS-ARM64) KCFLAGS=$(KCFLAGS-ARM64)
-	cp arch/arm64/boot/Image $(PWD)/../../build/zImage_arm64
-	cp vmlinux  $(PWD)/../../build/vmlinux_arm64
+	cp $(KERNEL-DIR-ARM64)/arch/arm64/boot/Image $(PWD)/../../build/zImage_arm64
+	cp $(KERNEL-DIR-ARM64)/vmlinux  $(PWD)/../../build/vmlinux_arm64
 
 clean:
 	rm -f template_arm template_thumb template_arm64 template_arm_dump template_thumb_dump template_arm64_dump ktemplate.c ktemplate_dump.c
