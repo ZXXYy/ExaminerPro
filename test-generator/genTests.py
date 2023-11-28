@@ -15,7 +15,7 @@ def generate(binary: bytes, offset: int, insts: dict, outdir: str):
         with open(os.open(outpath, os.O_CREAT | os.O_WRONLY, 0o777), "wb") as f:
             f.write(binary)
 
-def kgenerate(binary: bytes, offset: int, offset_mem: int, insts: dict, outdir: str, testnum: int, dump: bool):
+def kgenerate(mode, binary: bytes, offset: int, offset_mem: int, insts: dict, outdir: str, testnum: int, dump: bool):
     test_insts = []
     ARM_INST_LEN = 4
     insts_num = len(insts)
@@ -42,7 +42,11 @@ def kgenerate(binary: bytes, offset: int, offset_mem: int, insts: dict, outdir: 
 
             with open(os.open(outpath, os.O_CREAT | os.O_WRONLY, 0o777), "wb") as f:
                 f.write(outbinary)
-            os.system('strip --strip-debug '+outpath)
+            if mode == "arm64":
+                os.system(f'aarch64-linux-gnu--strip --strip-debug '+outpath)
+            else:
+                os.system(f'arm-linux-gnueabi-strip --strip-debug '+outpath)
+            
             test_insts = []
         test_insts.append(inst)
 
@@ -83,7 +87,7 @@ def main():
         generate(binary, offset, insts, outdir)
     elif level == "system":
         binary, offset, offset_mem = parse_template(mode, "system")
-        kgenerate(binary, offset, offset_mem, insts, outdir, testnum, dumpflag)
+        kgenerate(mode, binary, offset, offset_mem, insts, outdir, testnum, dumpflag)
 
 
 if __name__ == "__main__":
