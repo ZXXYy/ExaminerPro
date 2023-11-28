@@ -5,7 +5,6 @@
 #include <linux/sched.h>
 #include <linux/time.h>
 // #include <linux/kgdb.h>
-#define NUM_TESTS 1000
 
 MODULE_LICENSE("GPL");
 #pragma GCC optimize ("O0")
@@ -18,8 +17,12 @@ int undef_instr_handler(struct pt_regs *regs, u32 instr)
         "my_undef_inst:\n"
     );
     // Just skip over to the next instruction.
+    #ifdef __aarch64__
     regs->pc += 4;
-
+    #else  
+    regs->ARM_pc += 4;
+    #endif
+    
     return 0; // All fine!
 }
 
