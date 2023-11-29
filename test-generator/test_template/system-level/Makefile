@@ -4,9 +4,9 @@ PWD := $(shell pwd)
 CROSS-ARM := arm-linux-gnueabi-
 CROSS-ARM64 := aarch64-linux-gnu-
 obj-m += ktemplate.o ktemplate_dump.o
-KCFLAGS-ARM := '-march=armv7ve -mcpu=cortex-a7 -mfloat-abi=hard -mfpu=vfpv4'
+KCFLAGS-ARM := '-march=armv7-a -mtune=cortex-a7 -mfloat-abi=softfp'
 KCFLAGS-ARM64 := '-march=armv8-a+crc -mtune=cortex-a72'
-KCFLAGS-THUMB := '-mthumb -mcpu=cortex-a7 -march=armv7ve -mfloat-abi=hard -mfpu=vfpv4'
+KCFLAGS-THUMB := '-mthumb -mcpu=cortex-a7 -march=armv7-a -mfloat-abi=softfp'
 
 .PHONY: build
 build: ktemplate.c ktemplate_dump.c
