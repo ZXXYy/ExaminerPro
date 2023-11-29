@@ -17,7 +17,7 @@ target_dir="$cur_dir/../build/rootfs-$3"
 
 cp -r "$testcase_dir" "$target_dir"
 cd "$target_dir"
-find . -print0 | cpio --null -ov --format=newc | gzip -9 > ../rootfs-arm.cpio.gz
+find . -print0 | cpio --null -ov --format=newc | gzip -9 > ../rootfs-$3.cpio.gz
 # cp -r "$ROOT/build/testcases/top.sh" "$ROOT/build/rootfs"
 # cp -r "$ROOT/build/testcases/normal/testko/." "$ROOT/build/rootfs"
 # cp -r "$ROOT/build/testcases/str/." "$ROOT/build/rootfs/str"

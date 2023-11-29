@@ -1,10 +1,11 @@
 set pagination off
-set $cnt=6
-set $loop=76474
+set $cnt=-1
+set $loop=0
 set $testnum=100000
-set $init_addr=0x68
-set $check_addr=0x73f7f4
-set $finish_addr=0x73f7f8
+
+set $testcase_start_addr=0xac
+set $inst_loc_addr=0xf0
+set $finish_loc_addr=0xc3600
 set auto-load safe-path /
 
 def get-cpu-state
@@ -16,18 +17,8 @@ def get-exception-state
 end
 
 def set-testcase-bp
-    b inst_location
+    b init_module
     commands
-        set $pc = $init_addr + $load_addr + ($loop)*19*4
-        set $prepc = $init_addr + $load_addr + ($loop)*19*4+17*4
-        set $presp = $sp
-        set logging off
-        eval "set logging file ./output_virt/%d.output", $cnt*$testnum+$loop
-        set logging overwrite on
-        set logging on
-        printf "test case: %d\n", $cnt*$testnum+$loop++
-        x/x $pc
-        x/x $prepc
         b do_PrefetchAbort
         command
             printf "-------------------pabt----------------\n"
@@ -65,10 +56,25 @@ def set-testcase-bp
         end
         continue
     end
+    b inst_location
+    commands
+        set $pc = $inst_loc_addr + $load_addr + ($loop)*2*4
+        set $prepc = $inst_loc_addr + $load_addr + ($loop)*2*4
+        set $presp = $sp
+        set $expcetion = 0
+        set logging off
+        eval "set logging file ./output_virt/%d.output", $cnt*$testnum+$loop
+        set logging overwrite on
+        set logging on
+        printf "test case: %d\n", $cnt*$testnum+$loop++
+        x/x $pc
+        x/x $prepc
+        continue
+    end 
     b prepare_dump
     command
         if $expcetion == 1
-            set $pc=$finish_addr + $load_addr
+            set $pc=$finish_loc_addr + $load_addr
         end
         continue
     end
@@ -95,19 +101,8 @@ def set-testcase-bp
         if $testnum == $loop
             continue
         else
+            set $pc = $testcase_start_addr + $load_addr
             set $sp = $presp
-            set $pc = $init_addr + $load_addr + ($loop)*19*4
-            set $prepc = $init_addr + $load_addr + ($loop)*19*4+17*4
-            set $presp = $sp
-            set $expcetion = 0
-            set logging off
-            eval "set logging file ./output_virt/%d.output", $cnt*$testnum+$loop
-            set logging overwrite on
-            set logging on
-            x/x $pc
-            x/x $prepc
-            p $loop
-            printf "test case: %d\n", $cnt*$testnum+$loop++
             continue
         end
     end
@@ -125,14 +120,14 @@ end
 b do_init_module
 command
     print mod->core_layout.base
-    add-symbol-file kmod/ktemplate.ko mod->core_layout.base
+    add-symbol-file ../../../test-generator/test_template/system-level/ktemplate_arm.ko mod->core_layout.base
     set $load_addr = mod->core_layout.base
     set $cnt=$cnt+1 
     set $expcetion = 0
     continue
 end
 
-add-symbol-file kmod/ktemplate.ko 0x7f000000
+add-symbol-file ../../../test-generator/test_template/system-level/ktemplate_arm.ko 0x7f000000
 set-testcase-bp
 
 target remote localhost:1234
