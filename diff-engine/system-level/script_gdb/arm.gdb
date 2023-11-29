@@ -8,15 +8,15 @@ set $inst_loc_addr=0xf0
 set $finish_loc_addr=0xc3600
 set auto-load safe-path /
 
-def get-cpu-state
+define get-cpu-state
     info registers
 end
 
-def get-exception-state
+define get-exception-state
     p /x *regs
 end
 
-def set-testcase-bp
+define set-testcase-bp
     b init_module
     commands
         b do_PrefetchAbort
@@ -120,14 +120,14 @@ end
 b do_init_module
 command
     print mod->core_layout.base
-    add-symbol-file ../../../test-generator/test_template/system-level/ktemplate_arm.ko mod->core_layout.base
+    add-symbol-file ../../test-generator/test_template/system-level/ktemplate_arm.ko mod->core_layout.base
     set $load_addr = mod->core_layout.base
     set $cnt=$cnt+1 
     set $expcetion = 0
     continue
 end
 
-add-symbol-file ../../../test-generator/test_template/system-level/ktemplate_arm.ko 0x7f000000
+add-symbol-file ../../test-generator/test_template/system-level/ktemplate_arm.ko 0x7f000000
 set-testcase-bp
 
 target remote localhost:1234

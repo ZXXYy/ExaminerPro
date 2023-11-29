@@ -34,8 +34,9 @@ fi
 
 # echo "[1] Generating Instructions for $1 $2..."
 # python3 genInsts.py --altslicesyntax --demangle --verbose -o mra_tools/arch/arch $xml_file --encoding $2 --arch $1 --strategy $4
+cp /home/zxy/TSE-ExaminerPro/test-generator/build/$4/$2/$2.txt $pickle_file
 echo "[2] Pickling Instructions for $1 $2..."
-python3 pickleInsts.py $pickle_file $4
+python3 pickleInsts.py $pickle_file $4 $2
 
 echo "[3.1] Generating Test Cases from template for $1 $2 at user level..."
 python3 genTests.py --file pickled_$pickle_file --mode $3 --level user
@@ -73,3 +74,4 @@ cp -r testcases-system-$3-str/ build/$4/$2/
 rm -r testcases-system-$3/ testcases-system-$3-str/ testcases-user-$3/
 
 # ./generator.sh  AArch32 A32 arm symbolic
+# ./generator.sh AArch64 A64 arm64 symbolic

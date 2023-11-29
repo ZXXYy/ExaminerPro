@@ -1,22 +1,10 @@
-#!/bin/sh
-if [ "$1" = "single" ]
-then
-DUMP_SCRIPT="dump_one"
-else
-DUMP_SCRIPT="dump"
+#!/bin/bash
+if [ "$1" != "arm" ] && [ "$1" != "thumb" ] && [ "$1" != "arm64" ]; then
+    echo "Mode must be one of: arm, thumb, arm64"
+    exit 1
 fi
-if [ "$2" = "real" ]
-then
-DUMP_SCRIPT="${DUMP_SCRIPT}_real"
-fi
-if [ "$3" = "1" ]
-then
-DUMP_SCRIPT="${DUMP_SCRIPT}_board1"
-elif [ "$3" = "2" ]
-then 
-DUMP_SCRIPT="${DUMP_SCRIPT}_board2"
-elif [ "$3" = "3" ]
-then 
-DUMP_SCRIPT="${DUMP_SCRIPT}_board3"
-fi
-gdb-multiarch build/vmlinux --command="./script_gdb/${DUMP_SCRIPT}.gdb"
+DUMP_SCRIPT="$1"
+cur_dir=$(pwd)
+vmlinux_path=$cur_dir/../../test-generator/build/vmlinux_$1
+
+gdb-multiarch $vmlinux_path --command="./script_gdb/${DUMP_SCRIPT}.gdb"

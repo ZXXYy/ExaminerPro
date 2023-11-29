@@ -44,10 +44,28 @@ sudo mknod console c 5 1
 sudo mknod tty2 c 4 2
 sudo cp -r $cur_dir/../build/rootfs-arm/* $cur_dir/../build/rootfs-thumb/
 
-# echo "[2] Compiling busybox for arm64..."
-# cd $BUSYBOX_DIR_ARM64
-# # make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
-# # make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- menuconfig
-# make ARCH=arm64 CROSS_COMPILE=$CROSS_ARM64
-# make ARCH=arm64 CROSS_COMPILE=$CROSS_ARM64 install
-# cp -av _install/* $cur_dir/../build/rootfs-arm64/
+echo "[4] Compiling busybox for arm64..."
+cd $BUSYBOX_DIR_ARM64
+# make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
+# make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- menuconfig
+make ARCH=arm64 CROSS_COMPILE=$CROSS_ARM64
+make ARCH=arm64 CROSS_COMPILE=$CROSS_ARM64 install
+cp -av _install/* $cur_dir/../build/rootfs-arm64/
+cd $cur_dir/../build/rootfs-arm64
+
+echo "[5] Creating init file for arm64..."
+touch init
+chmod +x init
+echo '#!/bin/sh
+mount -t proc none /proc
+mount -t sysfs none /sys
+mknod -m 660 /dev/mem c 1 1
+echo -e "\nHello!\n"
+exec /bin/sh' > init
+
+echo "[6] Creating standard directory layout for arm64..."
+mkdir -pv {bin,sbin,etc,proc,sys,usr/{bin,sbin},dev}
+cd dev
+sudo mknod null c 1 3
+sudo mknod console c 5 1
+sudo mknod tty2 c 4 2
