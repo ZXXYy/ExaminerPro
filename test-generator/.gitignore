@@ -2,3 +2,4 @@ build/
 *.txt*
 *.json*
 testcases*/
+pickled_*

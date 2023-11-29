@@ -32,13 +32,21 @@ else
     pickle_file=$2.txt
 fi
 
-echo "[1] Generating Instructions for $1 $2..."
-python3 genInsts.py --altslicesyntax --demangle --verbose -o mra_tools/arch/arch $xml_file --encoding $2 --arch $1 --strategy $4
+# echo "[1] Generating Instructions for $1 $2..."
+# python3 genInsts.py --altslicesyntax --demangle --verbose -o mra_tools/arch/arch $xml_file --encoding $2 --arch $1 --strategy $4
 echo "[2] Pickling Instructions for $1 $2..."
 python3 pickleInsts.py $pickle_file $4
 
-echo "[3] Generating Test Cases from template for $1 $2..."
-python3 genTests.py pickled_$pickle_file --mode $3
+echo "[3.1] Generating Test Cases from template for $1 $2 at user level..."
+python3 genTests.py --file pickled_$pickle_file --mode $3 --level user
+
+echo "[3.2] Generating Test Cases from template for $1 $2 at system level..."
+echo "[3.2.1] Spliting Test Cases for $1 $2 at system level..."
+python3 filterInstsSystem.py $3 pickled_$pickle_file
+echo "[3.2.2] Generating Test Cases from template..."
+python3 genTests.py --file pickled_normal_insts_$2 --mode $3 --level system
+echo "[3.2.2] Generating str Test Cases from template..."
+python3 genTests.py --file pickled_str_insts_$2 --mode $3 --level system --dumpflag true
 
 echo "[4] Moving outputs to build"
 if [ ! -d "build/$4" ]; then
@@ -49,11 +57,19 @@ if [ ! -d "build/$4/$2" ]; then
 fi
 
 mv $2.txt build/$4/$2/$2.txt
-mv pickled_$pickle_file.txt build/$4/$2/pickled_$2.txt
+mv pickled_$pickle_file build/$4/$2/pickled_$2.txt
+mv pickled_normal_insts_$2 build/$4/$2/pickled_normal_insts_$2
+mv pickled_str_insts_$2 build/$4/$2/pickled_str_insts_$2
+mv pickled_filter_insts_$2 build/$4/$2/pickled_filter_insts_$2
+
 if [ "$4" == "random" ]; then
     mv $pickle_file build/$4/$2/$pickle_file
     mv $2_rand_valid_constraint.json build/$4/$2/$2_rand_valid_constraint.json
 fi
 
-cp -r testcases/  build/$4/$2/testcases
-rm -r testcases/
+cp -r testcases-user-$3/  build/$4/$2/testcases-user-$3
+cp -r testcases-system-$3/ build/$4/$2/
+cp -r testcases-system-$3-str/ build/$4/$2/
+rm -r testcases-system-$3/ testcases-system-$3-str/ testcases-user-$3/
+
+# ./generator.sh  AArch32 A32 arm symbolic

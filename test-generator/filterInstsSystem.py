@@ -133,21 +133,66 @@ class StoreTestCaseGenerator:
                 logging.debug("{}: {} {}; {}".format(
                     err, cs_insn.mnemonic, op_str, inserted_inst))
         return InstType.INVALID
-        
+    
+    def get_dump_inst(self, str_inst):
+        if self.mode in ("arm", "thumb"):
+            mov_inst = INST_ARM_MOV_R1
+        elif self.mode == "arm64":
+            mov_inst = INST_ARM64_MOV_R1
+        try:
+            cs_insn: CsInsn = next(self.cs.disasm(str_inst, 0x00), None)
+        except CsError as err:
+            logging.debug(err)
+        if cs_insn:
+            inst_name = cs_insn.insn_name()
+            op_str = cs_insn.op_str
+            try:
+                if self.mode == 'arm64':
+                    if inst_name not in A64_STR_INSTS:
+                        return mov_inst
+                    position = '[' + op_str.split('[')[1]
+                    reg_mode = op_str.split(' ')[1][0]
+                    if reg_mode in ('w', 'x'):
+                        reg = reg_mode + '1'
+                    else:
+                        return mov_inst
+                    inserted_inst = "{} {}, {}".format(inst_name.replace(
+                        'st', 'ld'), reg, position.replace('pc', 'x3'))
+                    encoding, _ = self.ks.asm(inserted_inst, as_bytes=True)
+                    if encoding:
+                        return encoding
+                    return mov_inst
+                else:
+                    if inst_name not in A32_STR_INSTS:
+                        return mov_inst
+                    match = re.search(r"\[.*\]", op_str)
+                    position = '[' + op_str.split('[')[1]
+                    inserted_inst = "ldr r1," + position.replace('pc', 'r3')
+                    # print(inserted_inst)
+                    encoding, _ = self.ks.asm(inserted_inst, as_bytes=True)
+                    if encoding:
+                        return encoding
+                    return mov_inst
+            except KsError as err:
+                logging.debug("{}: {} {}; {}".format(
+                    err, cs_insn.mnemonic, op_str, inserted_inst))
+        return mov_inst
 
 @click.command()
 @click.argument("mode", type=click.Choice(["arm", "thumb", "arm64"]))
 @click.argument("instsfile", type=click.File("rb"))
 @click.option(
     "--outdir",
-    default="testcases",
+    default=".",
     type=click.Path(resolve_path=True),
 )
 def main(mode, instsfile, outdir):
     if mode=='arm':
-        output_suffix = "" 
+        output_suffix = "A32" 
     elif mode=='arm64':
-        output_suffix = "64"
+        output_suffix = "A64"
+    elif mode=='thumb':
+         output_suffix = "T32"
     str_insts = {}
     noraml_insts = {}
     filter_insts = {}
@@ -170,11 +215,11 @@ def main(mode, instsfile, outdir):
     if not os.path.exists(outdir):
         os.makedirs(outdir)
 
-    with open(f'{outdir}/pickled_str_insts{output_suffix}', 'wb') as f:
+    with open(f'{outdir}/pickled_str_insts_{output_suffix}', 'wb') as f:
         pickle.dump(str_insts, f)
-    with open(f'{outdir}/pickled_noraml_insts{output_suffix}', 'wb') as f:
+    with open(f'{outdir}/pickled_normal_insts_{output_suffix}', 'wb') as f:
         pickle.dump(noraml_insts, f)
-    with open(f'{outdir}/pickled_filter_insts{output_suffix}', 'wb') as f:
+    with open(f'{outdir}/pickled_filter_insts_{output_suffix}', 'wb') as f:
         pickle.dump(filter_insts, f)
 
 

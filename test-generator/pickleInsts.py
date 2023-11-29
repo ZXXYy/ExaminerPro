@@ -15,7 +15,7 @@ def main(instsfile, strategy, thumb):
         if strategy == 'random':
             name, inst = line.split(" ")
         else:
-            name, _, inst = line.split(" ")
+            name, inst = line.split(" ")
         insts[i] = (name, bin2bytes(inst, mode))
     with open(f'pickled_{instsfile.name}', 'wb') as f:
         pickle.dump(insts, f)

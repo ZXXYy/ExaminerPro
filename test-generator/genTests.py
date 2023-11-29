@@ -2,6 +2,7 @@ import os
 import pickle
 import argparse
 from math import ceil
+from filterInstsSystem import StoreTestCaseGenerator
 from tqdm import tqdm
 
 from utils.elf import parse_template
@@ -17,8 +18,10 @@ def generate(binary: bytes, offset: int, insts: dict, outdir: str):
 
 def kgenerate(mode, binary: bytes, offset: int, offset_mem: int, insts: dict, outdir: str, testnum: int, dump: bool):
     test_insts = []
+    dump_insts = []
     ARM_INST_LEN = 4
     insts_num = len(insts)
+    sg = StoreTestCaseGenerator(mode)
     print(insts_num)
     for i, (name, inst) in tqdm(insts.items()):
         if (i!=0 and i%testnum ==0) or i==insts_num-1:
@@ -30,7 +33,7 @@ def kgenerate(mode, binary: bytes, offset: int, offset_mem: int, insts: dict, ou
             if dump:
                 outbinary += binary[temp_offset : offset_mem] 
                 temp_offset = offset_mem
-                for dump_inst in test_insts:
+                for dump_inst in dump_insts:
                     outbinary += dump_inst + binary[temp_offset + len(dump_inst) : temp_offset + len(dump_inst)*2 ]
                     temp_offset = temp_offset + len(dump_inst)*2
                 outbinary += binary[temp_offset:]
@@ -49,6 +52,8 @@ def kgenerate(mode, binary: bytes, offset: int, offset_mem: int, insts: dict, ou
             
             test_insts = []
         test_insts.append(inst)
+        if dump:
+            dump_insts.append(sg.get_dump_inst(inst))
 
 
 def parse_args():
@@ -71,8 +76,9 @@ def parse_args():
     mode = args.mode
     level = args.level
     outdir =f"{args.outdir}-{level}-{mode}"
-    testnum = args.number
     dumpflag = args.dumpflag
+    outdir = f"{outdir}-str" if dumpflag else outdir
+    testnum = args.number
     return instsfile, mode, level, outdir, testnum, dumpflag
 
 
@@ -83,10 +89,10 @@ def main():
         os.mkdir(outdir)
 
     if level == "user":
-        binary, offset, _ = parse_template(mode, "user")
+        binary, offset, _ = parse_template(mode, "user", "")
         generate(binary, offset, insts, outdir)
     elif level == "system":
-        binary, offset, offset_mem = parse_template(mode, "system")
+        binary, offset, offset_mem = parse_template(mode, "system", "_dump" if dumpflag else "")
         kgenerate(mode, binary, offset, offset_mem, insts, outdir, testnum, dumpflag)
 
 
