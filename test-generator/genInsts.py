@@ -2849,12 +2849,27 @@ if __name__ == "__main__":
        
     elif strategy == "symbolic":
         generate_insts_from_asl(instrs, f"{encoding}.txt", encoding)
+        filter_orig_a32(instrs,f"{encoding}.txt",f"{encoding}_filtered.txt",encoding)
+
         #generate_specific_insts(instrs,"A32","aarch32/VLD4_m/T1A1_A")
         #results = calculate_random()
         #print(results)
     elif strategy == "random-symbols":
         generate_randomsymbols_insts(instrs, f"{encoding}.txt", encoding)
         pass
+    with open(f"{encoding}_filtered.txt", "r") as instsfile:
+        lines = instsfile.readlines()
+        print(len(lines))
+    # filter out duplicates
+    with open(f"{encoding}_filtered.txt", "r") as instsfile:
+        insts = {}
+        for i, line in enumerate(instsfile):
+            name, _, inst = line.split(" ")
+            insts[inst] = line
+    print(len(insts))
+    with open(f"{encoding}.txt", "w") as instsfile:
+        for key, inst in enumerate(insts):
+            instsfile.write(inst)
 
     #tests_covered_constraints(instrs,"bin/a64_filter_test.txt","bin/a64_tmp.json","A64")
     #filter_unpredictables(instrs,"bin/arm6_arm.json","bin/arm6_arm_filter.json","A32")
