@@ -57,7 +57,7 @@ python3 genInsts.py --altslicesyntax --demangle --verbose -o mra_tools/arch/arch
 #     mkdir "build/$4/$2"
 # fi
 
-# mv $2.txt build/$4/$2/$2.txt
+mv $2* build/$4/$2/
 # mv pickled_$pickle_file build/$4/$2/pickled_$2.txt
 # mv pickled_normal_insts_$2 build/$4/$2/pickled_normal_insts_$2
 # mv pickled_str_insts_$2 build/$4/$2/pickled_str_insts_$2

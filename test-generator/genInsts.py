@@ -1381,10 +1381,11 @@ class Instruction:
 
             #insts = self.fuzz_insts(fields,dec)
             for inst in insts:
-                if insn_set == "A64":
-                    file.write("%s %s %s\n"%(deslash(inm)+"_"+self.file_name,insn_set,inst))
-                else:
-                    file.write("%s %s %s\n"%(deslash(inm),insn_set,inst))
+                file.write("%s %s %s\n"%(inm,insn_set,inst))
+                # if insn_set == "A64":
+                #     file.write("%s %s %s\n"%(inm+"_"+self.file_name,insn_set,inst))
+                # else:
+                #     file.write("%s %s %s\n"%(inm,insn_set,inst))
 
                     
 
@@ -2426,9 +2427,8 @@ def random_covered_constraints(instrs,input_file,output_file,target_set):
         if encoding not in valid_insts:
             valid_insts[encoding] = []
         valid_insts[encoding].append(inst)
-
     all_rand_constraints = {}
-
+    print(target_set)
     for i in tqdm(instrs):
         for (inm, insn_set, fields, dec) in i.encs:
             if insn_set != target_set:
@@ -2454,7 +2454,7 @@ def filter_orig_a32(instrs,input_file,output_file,target_set):
     for i in instrs:
         for (inm, insn_set, fields, dec) in i.encs:
             instencoding = InstEncoding(inm,i.post,fields,dec,i.exec)
-            all_instencodings[deslash(inm)+"_"+insn_set] = instencoding
+            all_instencodings[inm+"_"+insn_set] = instencoding
     for l in lines:
         encoding = l.split(" ")[0].strip()
         inst_set = l.split(" ")[1].strip()
@@ -2462,8 +2462,8 @@ def filter_orig_a32(instrs,input_file,output_file,target_set):
         if inst_set != target_set:
             continue
         if  all_instencodings[encoding+"_"+inst_set].isThisEncoding(inst):
-            f.write("%s %s %s\n"%(encoding,inst_set,inst))
-            logging.debug("%s %s %s\n"%(encoding,inst_set,inst))
+            f.write("%s %s\n"%(encoding,inst))
+            logging.debug("%s %s\n"%(encoding,inst))
     f.close()
     #print(all_instencodings["aarch32_VQSHL_r_T1A1_A_A32"].isThisEncoding("11110010000000000101010010111101"))
 
@@ -2669,27 +2669,6 @@ def generate_insts_from_random(instrs,output, encoding):
         f"{encoding}_rand_valid_constraint.json",
         encoding
     )
-    # generate_random_insts(870221,"a32_rand.txt"+str(index),"A32")
-    # random_valid_insts(instrs,"a32_rand.txt"+str(index),"a32_rand_valid.txt"+str(index),"A32")
-    # random_covered_constraints(instrs,"a32_rand_valid.txt"+str(index),"a32_rand_valid_constraint.json"+str(index),"A32")
-    
-    # logging.info("finish %d A32"%index)
-    # generate_random_insts(808770,"t32_rand.txt"+str(index),"T32")
-    # random_valid_insts(instrs,"t32_rand.txt"+str(index),"t32_rand_valid.txt"+str(index),"T32")
-    # random_covered_constraints(instrs,"t32_rand_valid.txt"+str(index),"t32_rand_valid_constraint.json"+str(index),"T32")
-
-    # logging.info("finish %d T32"%index)
-
-    # generate_random_insts(958,"t16_rand.txt"+str(index),"T16")
-    # random_valid_insts(instrs,"t16_rand.txt"+str(index),"t16_rand_valid.txt"+str(index),"T16")
-    # random_covered_constraints(instrs,"t16_rand_valid.txt"+str(index),"t16_rand_valid_constraint.json"+str(index),"T16")
-
-    # logging.info("finish %d T16"%index)
-            
-
-    #generate_random_insts(1094700,"bin/a64_rand.txt","A64")
-    #random_valid_insts(instrs,"bin/a64_rand.txt","bin/a64_rand_valid.txt","A64")
-    #random_covered_constraints(instrs,"bin/a64_rand_valid.txt","bin/a64_rand_valid_constraint.json","A64"):
  
 def generate_a64_random_all(instrs,index):
     generate_random_insts(1094700,"a64_rand.txt"+str(index),"A64")
@@ -2832,6 +2811,18 @@ def filter_unpredictables(instrs,input_file,output_file,mode):
         json.dump(all_unpredicatables,outfile,indent = 4)
 
 
+def filter_duplicates(input, output):
+    insts = {}
+    # filter out duplicates
+    with open(input, "r") as instsfile:
+        for i, line in enumerate(instsfile):
+            name, inst = line.split(" ")
+            insts[inst] = line
+    print(len(insts))
+
+    with open(output, "w") as instsfile:
+        for i, key in enumerate(insts):
+            instsfile.write(insts[key])
 
 
 if __name__ == "__main__":
@@ -2849,27 +2840,20 @@ if __name__ == "__main__":
        
     elif strategy == "symbolic":
         generate_insts_from_asl(instrs, f"{encoding}.txt", encoding)
-        filter_orig_a32(instrs,f"{encoding}.txt",f"{encoding}_filtered.txt",encoding)
-
+        filter_orig_a32(instrs,f"{encoding}.txt",f"{encoding}.txt",encoding)
+        with open(f"{encoding}.txt", "r") as instsfile:
+            lines = instsfile.readlines()
+            print(len(lines))
+        filter_duplicates(f"{encoding}.txt", f"{encoding}.txt")
+        random_covered_constraints(instrs, f"{encoding}.txt",f"{encoding}_constraints.json", encoding)
         #generate_specific_insts(instrs,"A32","aarch32/VLD4_m/T1A1_A")
         #results = calculate_random()
         #print(results)
     elif strategy == "random-symbols":
         generate_randomsymbols_insts(instrs, f"{encoding}.txt", encoding)
-        pass
-    with open(f"{encoding}_filtered.txt", "r") as instsfile:
-        lines = instsfile.readlines()
-        print(len(lines))
-    # filter out duplicates
-    with open(f"{encoding}_filtered.txt", "r") as instsfile:
-        insts = {}
-        for i, line in enumerate(instsfile):
-            name, _, inst = line.split(" ")
-            insts[inst] = line
-    print(len(insts))
-    with open(f"{encoding}.txt", "w") as instsfile:
-        for key, inst in enumerate(insts):
-            instsfile.write(inst)
+        filter_orig_a32(instrs,f"{encoding}.txt",f"{encoding}.txt",encoding)
+        random_covered_constraints(instrs, f"{encoding}.txt",f"{encoding}_constraints.json", encoding)
+    
 
     #tests_covered_constraints(instrs,"bin/a64_filter_test.txt","bin/a64_tmp.json","A64")
     #filter_unpredictables(instrs,"bin/arm6_arm.json","bin/arm6_arm_filter.json","A32")
