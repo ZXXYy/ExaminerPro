@@ -641,17 +641,17 @@ class Field:
                 return "reg"
         return self.name
 
-    def get_fuzzlist(self):
+    def get_fuzzlist(self, random_num=0):
         if 'x' in self.structure:
             l = self.structure.count('x')
             if self.type == 'cond':
                 self.fuzz_list = ['1110']
             elif self.type == 'reg' and self.bits == 4:
-                self.fuzz_list = special_regs_4bits + random.sample(left_regs_4bits, 2)
+                self.fuzz_list = special_regs_4bits + random.sample(left_regs_4bits, 2+random_num)
             elif self.type == 'reg' and  self.bits == 3:
-                self.fuzz_list = special_regs_3bits + random.sample(left_regs_3bits, 1)
+                self.fuzz_list = special_regs_3bits + random.sample(left_regs_3bits, 1+random_num)
             elif self.type == 'register_list':
-                self.fuzz_list = random.sample(bin_x(self.bits), self.bits)
+                self.fuzz_list = random.sample(bin_x(self.bits), self.bits+random_num)
             elif self.type == 'imm':
                 xlists = find(self.structure,'x')
                 if len(xlists)>10:
@@ -661,12 +661,8 @@ class Field:
                 all_imm = extend_insts([self.structure])
                 special_imm = [all_imm[0], all_imm[-1]]
                 left_imm = all_imm[1:-1]
-                #if l <= 3:
-                #    num = l * 2 - 2
-                #else:
-                #    num = 6
                 if l >1:
-                    self.fuzz_list = special_imm + random.sample(left_imm, l-2)
+                    self.fuzz_list = special_imm + random.sample(left_imm, (l-2)+random_num)
                 else:
                     self.fuzz_list = special_imm
             else:
@@ -976,8 +972,9 @@ class InstEncoding:
 
     def generate_insts(self, strategy):
         results = []
+        random_num = 1 if strategy == "random-symbols" else 0
         for field in self.fields:
-            field.get_fuzzlist()
+            field.get_fuzzlist(random_num)
         if strategy == "symbolic":
             for condition in self.conditions:
                 results = self.solve(condition)
@@ -2391,7 +2388,26 @@ def random_valid_insts(instrs,input_file,output_file,inst_set):
                     f_v.write("%s %s\n"%(inm, l.strip()))
                     logging.debug("identified %s %s\n"%(inm, l.strip()))
                     lines.remove(l)
-    f_v.close()               
+    f_v.close()  
+
+def random_symbols_valid_insts(instrs,input_file,output_file,inst_set):
+    f = open(input_file,"r")
+    lines = f.readlines()
+    print(len(lines))
+    f.close()
+    f_v = open(output_file,"w")
+    for i in tqdm(instrs):
+        for (inm, insn_set, fields, dec) in i.encs:
+            if insn_set != inst_set:
+                continue
+            instencoding = InstEncoding(inm,i.post,fields,dec,i.exec)
+            for l in lines:
+                inst = l.split(" ")[2].strip()
+                if instencoding.isThisEncoding(inst):
+                    f_v.write("%s %s\n"%(inm, inst))
+                    # print("identified %s %s\n"%(inm, inst))
+                    lines.remove(l)
+    f_v.close()              
 
 def generate_random_insts(number,output_file,inst_set):
     value = ["0","1"]
@@ -2850,8 +2866,9 @@ if __name__ == "__main__":
         #results = calculate_random()
         #print(results)
     elif strategy == "random-symbols":
-        generate_randomsymbols_insts(instrs, f"{encoding}.txt", encoding)
-        filter_orig_a32(instrs,f"{encoding}.txt",f"{encoding}.txt",encoding)
+        generate_randomsymbols_insts(instrs, f"{encoding}_orig.txt", encoding)
+        random_symbols_valid_insts(instrs, f"{encoding}_orig.txt", f"{encoding}.txt", encoding)
+        # filter_orig_a32(instrs,f"{encoding}.txt",f"{encoding}.txt",encoding)
         random_covered_constraints(instrs, f"{encoding}.txt",f"{encoding}_constraints.json", encoding)
     
 
