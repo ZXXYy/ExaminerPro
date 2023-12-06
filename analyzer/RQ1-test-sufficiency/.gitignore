@@ -3,4 +3,4 @@ symbolic/
 random-symbols/
 *.output
 *.txt
-*.out
+nohup.out

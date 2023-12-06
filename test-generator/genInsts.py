@@ -1378,9 +1378,10 @@ class Instruction:
 
             #insts = self.fuzz_insts(fields,dec)
             for inst in insts:
-                file.write("%s %s %s\n"%(inm,insn_set,inst))
-                # if insn_set == "A64":
-                #     file.write("%s %s %s\n"%(inm+"_"+self.file_name,insn_set,inst))
+                if insn_set == "A64":
+                    file.write("%s %s %s\n"%(inm+"_"+self.file_name,insn_set,inst))
+                else:
+                    file.write("%s %s %s\n"%(inm,insn_set,inst))
                 # else:
                 #     file.write("%s %s %s\n"%(inm,insn_set,inst))
 
@@ -2780,7 +2781,7 @@ def tests_covered_constraints(instrs,input_file,output_file,target_set):
                 logging.debug(inm)
                 continue
             instencoding = InstEncoding(inm,i.post,fields,dec,i.exec)
-            instencoding.generate_insts()
+            instencoding.generate_insts("symbolic")
             all_insts = valid_insts[inm]
             inst_covered_constraints = instencoding.covered_constraints(all_insts)
             all_rand_constraints[inm] = inst_covered_constraints
@@ -2799,7 +2800,7 @@ def filter_unpredictables(instrs,input_file,output_file,mode):
             #if inm not in valid_insts:
             #    continue
             instencoding = InstEncoding(inm,i.post,fields,dec,i.exec)
-            instencoding.generate_insts()
+            instencoding.generate_insts("symbolic")
             #instencoding.unpredicatableConditions(dec.code)
             all_encodings[deslash(inm)] = instencoding
     
@@ -2855,8 +2856,9 @@ if __name__ == "__main__":
         # filter_orig_a32(instrs,"bin/a32_orig_test.txt","bin/t16_filter_test.txt","T16")
        
     elif strategy == "symbolic":
-        generate_insts_from_asl(instrs, f"{encoding}.txt", encoding)
-        filter_orig_a32(instrs,f"{encoding}.txt",f"{encoding}.txt",encoding)
+        generate_insts_from_asl(instrs, f"{encoding}_orig.txt", encoding)
+        if encoding != "A64":
+            filter_orig_a32(instrs,f"{encoding}_orig.txt",f"{encoding}.txt",encoding)
         with open(f"{encoding}.txt", "r") as instsfile:
             lines = instsfile.readlines()
             print(len(lines))

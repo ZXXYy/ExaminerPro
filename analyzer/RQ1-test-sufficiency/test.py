@@ -1,9 +1,10 @@
 import subprocess
 import os
 
-encoding = 'A32'
-arch = 'AArch32'
-strategy = 'random-symbols'
+encoding = 'A64'
+arch = 'AArch64'
+strategy = 'symbolic'
+
 if arch == 'AArch32':
     xml_file = '../../test-generator/mra_tools/v8.6/ISA_AArch32_xml_v86A-2019-12'
 else:
@@ -19,7 +20,8 @@ script_arguments = [
     xml_file, 
     '--encoding', encoding, 
     '--arch', arch, 
-    '--strategy', strategy
+    '--strategy', strategy,
+    '--log_level', "debug",
 ]
 try:
     if not os.path.exists(f"{strategy}/{encoding}"):
