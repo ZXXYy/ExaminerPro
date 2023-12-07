@@ -15,10 +15,10 @@ def generate(binary: bytes, offset: int, insts: dict, outdir: str):
         outpath = os.path.join(outdir, str(id))
         with open(os.open(outpath, os.O_CREAT | os.O_WRONLY, 0o777), "wb") as f:
             f.write(binary)
-        if mode == "arm64":
-            os.system(f'aarch64-linux-gnu-strip --strip-debug '+outpath)
-        else:
-            os.system(f'arm-linux-gnueabi-strip --strip-debug '+outpath)
+        # if mode == "arm64":
+        #     os.system(f'aarch64-linux-gnu-strip --strip-debug '+outpath)
+        # else:
+        #     os.system(f'arm-linux-gnueabi-strip --strip-debug '+outpath)
 
 def kgenerate(mode, binary: bytes, offset: int, offset_mem: int, insts: dict, outdir: str, testnum: int, dump: bool):
     test_insts = []

@@ -4,3 +4,7 @@ random-symbols/
 *.output
 *.txt
 nohup.out
+testcase*/
+state_qemu/
+timeout_qemu
+*.info

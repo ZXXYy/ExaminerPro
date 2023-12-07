@@ -14,6 +14,7 @@ import re
 import string
 import random
 import sys
+import shutil
 import logging
 import xml.etree.cElementTree as ET
 from collections import defaultdict
@@ -410,6 +411,7 @@ class Condition:
         self.patchUInt()
         self.patchColon()
         self.patchArray()
+        self.patchArrow()
         self.patchDIV()
         self.patchLowestBit()
 
@@ -505,6 +507,16 @@ class Condition:
                 self.statement = self.statement.replace(result[0],rep)
             except:
                 pass
+    
+    def patchArrow(self):
+        results = re.findall(r'((\w+)\<([0-9a-zA-Z]+)\>)',self.statement)
+        for result in results:
+            try:
+                value_index = int(result[2])
+                rep = "ZeroExt(31,Extract( %s , %s , %s))"%(result[2],result[2],result[1])
+                self.statement = self.statement.replace(result[0],rep)
+            except:
+                pass
 
     def patchLowestBit(self):
         results = re.findall(r'(LowestSetBit\((\w+)\))',self.statement)
@@ -512,8 +524,8 @@ class Condition:
             self.statement = "Or(And(%s==16,%s),And(%s==8,%s))" % (result[1],self.statement.replace(result[0],"4"),result[1],self.statement.replace(result[0],"3"))
 
     def patchUInt(self):
-        #print("{} is UInt or not?".format(self.statement))
-        results = re.findall(r'UInt\(([\w\:\[\]]+)\)',self.statement)
+        # print("{} is UInt or not?".format(self.statement))
+        results = re.findall(r'UInt\((.*?)\)',self.statement)
         for result in results:
             self.statement = self.statement.replace("UInt(%s)"%result,result)
        
@@ -750,9 +762,12 @@ class InstEncoding:
             statement = removeBrackets(statement)
         conditions = []
         value_name = statement.split(" IN ")[0]
-        values = eval(statement.split(" IN ")[1].replace("{","[").replace("}","]"))
-        for v in values:
-            conditions.append(value_name+logic+v)
+        try:
+            values = eval(statement.split(" IN ")[1].replace("{","[").replace("}","]"))
+            for v in values:
+                conditions.append(value_name+logic+v)
+        except:
+            pass
         return conditions
 
     def convertField(self,fields):
@@ -977,7 +992,10 @@ class InstEncoding:
             field.get_fuzzlist(random_num)
         if strategy == "symbolic":
             for condition in self.conditions:
-                results = self.solve(condition)
+                try:
+                    results = self.solve(condition)
+                except Exception as e:
+                    print(e)
         elif strategy == "random-symbols":
             pass # do nothing
         insts = [""]
@@ -1379,9 +1397,9 @@ class Instruction:
             #insts = self.fuzz_insts(fields,dec)
             for inst in insts:
                 if insn_set == "A64":
-                    file.write("%s %s %s\n"%(inm+"_"+self.file_name,insn_set,inst))
+                    file.write("%s %s\n"%(inm+"#"+self.file_name,inst))
                 else:
-                    file.write("%s %s %s\n"%(inm,insn_set,inst))
+                    file.write("%s %s %s\n"%(inm+"#"+self.file_name,insn_set,inst))
                 # else:
                 #     file.write("%s %s %s\n"%(inm,insn_set,inst))
 
@@ -2386,7 +2404,7 @@ def random_valid_insts(instrs,input_file,output_file,inst_set):
             instencoding = InstEncoding(inm,i.post,fields,dec,i.exec)
             for l in lines:
                 if instencoding.isThisEncoding(l.strip()):
-                    f_v.write("%s %s\n"%(inm, l.strip()))
+                    f_v.write("%s %s\n"%(inm+"#"+i.file_name, l.strip()))
                     logging.debug("identified %s %s\n"%(inm, l.strip()))
                     lines.remove(l)
     f_v.close()  
@@ -2445,18 +2463,18 @@ def random_covered_constraints(instrs,input_file,output_file,target_set):
             valid_insts[encoding] = []
         valid_insts[encoding].append(inst)
     all_rand_constraints = {}
-    print(target_set)
+
     for i in tqdm(instrs):
         for (inm, insn_set, fields, dec) in i.encs:
             if insn_set != target_set:
                 continue
-            if inm not in valid_insts:
+            if inm+"#"+i.file_name not in valid_insts:
                 continue
             instencoding = InstEncoding(inm,i.post,fields,dec,i.exec)
             instencoding.generate_insts("symbolic")
-            all_insts = valid_insts[inm]
+            all_insts = valid_insts[inm+"#"+i.file_name]
             inst_covered_constraints = instencoding.covered_constraints(all_insts)
-            all_rand_constraints[inm] = inst_covered_constraints
+            all_rand_constraints[inm+"#"+i.file_name] = inst_covered_constraints
 
     with open(output_file, "w") as output_f:
         json.dump(all_rand_constraints, output_f, indent=4)
@@ -2473,7 +2491,7 @@ def filter_orig_a32(instrs,input_file,output_file,target_set):
             instencoding = InstEncoding(inm,i.post,fields,dec,i.exec)
             all_instencodings[inm+"_"+insn_set] = instencoding
     for l in lines:
-        encoding = l.split(" ")[0].strip()
+        encoding = l.split(" ")[0].strip().split("#")[0]
         inst_set = l.split(" ")[1].strip()
         inst = l.split(" ")[2].strip()
         if inst_set != target_set:
@@ -2859,6 +2877,8 @@ if __name__ == "__main__":
         generate_insts_from_asl(instrs, f"{encoding}_orig.txt", encoding)
         if encoding != "A64":
             filter_orig_a32(instrs,f"{encoding}_orig.txt",f"{encoding}.txt",encoding)
+        else:
+            shutil.copy2(f"{encoding}_orig.txt", f"{encoding}.txt")
         with open(f"{encoding}.txt", "r") as instsfile:
             lines = instsfile.readlines()
             print(len(lines))
