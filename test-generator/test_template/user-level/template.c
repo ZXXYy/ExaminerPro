@@ -5,12 +5,6 @@
 #include <sys/mman.h>
 
 #define PAGE_SIZE 4096
-// #ifdef __aarch64__
-//     #define TRAP_DEBUGGER __asm__ volatile("brk #0") 
-// #else
-//     #define TRAP_DEBUGGER __asm__ volatile(".long 0xe7ffdeff")
-// #endif
-
 
 uint8_t sig_stack_array[SIGSTKSZ];
 stack_t sig_stack = {
@@ -123,6 +117,7 @@ int main()
         "mov r11, %[reg_init]       \n"
         "mov r12, %[reg_init]       \n"
         "mov r14, %[reg_init]       \n"
+        "mov r13, r0                \n"
         :
         : [reg_init] "n"(0));
 #endif
@@ -141,7 +136,7 @@ int main()
         "bkpt #0\n"
 #endif
     );
-    // printf("after run\n");
+    
 
     // 正常情况下, 不会到达这里
     exit(0);
