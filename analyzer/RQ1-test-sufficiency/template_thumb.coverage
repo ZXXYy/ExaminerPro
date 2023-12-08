@@ -1,0 +1,208 @@
+Reading tracefile /home/zxy/TSE-ExaminerPro/analyzer/RQ1-test-sufficiency/template_thumb.info
+                                               |Lines      |Functions|Branches  
+Filename                                       |Rate    Num|Rate  Num|Rate   Num
+================================================================================
+[/home/zxy/qemu/]
+build/libqemu-arm-linu...ecode-a32-uncond.c.inc| 0.0%    83| 0.0%   2| 0.0%   95
+build/libqemu-arm-linu....fa.p/decode-a32.c.inc|30.6%  1142|52.0%  25|13.1% 1239
+build/libqemu-arm-linu....p/decode-m-nocp.c.inc| 0.0%    73| 0.0%   4| 0.0%   46
+build/libqemu-arm-linu....fa.p/decode-mve.c.inc| 0.0%  1647| 0.0%  50| 0.0% 1401
+build/libqemu-arm-linu...p/decode-neon-dp.c.inc| 0.0%  1276| 0.0%  37| 0.0% 1051
+build/libqemu-arm-linu...p/decode-neon-ls.c.inc| 0.0%    73| 0.0%   6| 0.0%   19
+build/libqemu-arm-linu...code-neon-shared.c.inc| 0.0%   184| 0.0%  13| 0.0%   97
+build/libqemu-arm-linu....fa.p/decode-t16.c.inc|29.0%   482|50.0%   4|16.7%  329
+build/libqemu-arm-linu....fa.p/decode-t32.c.inc| 5.9%  1333|14.7%  34| 2.8% 1355
+build/libqemu-arm-linu...ecode-vfp-uncond.c.inc| 0.0%   153| 0.0%  13| 0.0%   78
+build/libqemu-arm-linu....fa.p/decode-vfp.c.inc| 2.7%   619| 5.6%  36| 0.7%  411
+build/trace/trace-accel_tcg.h                  |64.3%    28| 100%   3|12.5%   24
+build/trace/trace-linux_user.h                 |39.7%   136|60.0%  15| 7.5%  120
+build/trace/trace-root.h                       |22.5%    40|42.9%   7| 9.4%   32
+qemu-8.0.5/accel/accel-blocker.c               | 0.0%    43| 0.0%   8| 0.0%   26
+qemu-8.0.5/accel/accel-common.c                |52.9%    51|60.0%  10|20.0%   20
+qemu-8.0.5/accel/tcg/atomic_common.c.inc       | 0.0%    32| 0.0% 130|    -    0
+qemu-8.0.5/accel/tcg/atomic_template.h         | 0.0%    62| 0.0% 128| 0.0%   36
+qemu-8.0.5/accel/tcg/cpu-exec-common.c         |28.6%    14|25.0%   4| 0.0%    2
+qemu-8.0.5/accel/tcg/cpu-exec.c                |55.3%   329|78.3%  23|32.0%  228
+qemu-8.0.5/accel/tcg/internal.h                | 0.0%     4| 0.0%   1| 0.0%    2
+qemu-8.0.5/accel/tcg/ldst_common.c.inc         | 0.0%   137| 0.0%  51|    -    0
+qemu-8.0.5/accel/tcg/perf.c                    | 4.0%   174|16.7%  12| 4.3%   70
+qemu-8.0.5/accel/tcg/plugin-gen.c              | 1.9%   377| 5.0%  40| 1.5%  136
+qemu-8.0.5/accel/tcg/plugin-helpers.h          | 0.0%     2| 0.0%   2|    -    0
+qemu-8.0.5/accel/tcg/tb-hash.h                 | 100%     4|    -   0|50.0%    4
+qemu-8.0.5/accel/tcg/tb-maint.c                |19.3%   187|21.1%  19| 7.0%  100
+qemu-8.0.5/accel/tcg/tcg-all.c                 |45.6%    68|46.2%  13| 0.0%   12
+qemu-8.0.5/accel/tcg/tcg-runtime-gvec.c        | 0.0%   975| 0.0% 142| 0.0% 1308
+qemu-8.0.5/accel/tcg/tcg-runtime.c             | 0.0%    48| 0.0%  22| 0.0%    8
+qemu-8.0.5/accel/tcg/tcg-runtime.h             | 0.6%   173| 0.4% 275|    -    0
+qemu-8.0.5/accel/tcg/trace-events              | 0.0%     5|    -   0|    -    0
+qemu-8.0.5/accel/tcg/translate-all.c           |44.0%   225|50.0%  14|34.4%  131
+qemu-8.0.5/accel/tcg/translator.c              |56.4%   117|71.4%   7|42.3%   52
+qemu-8.0.5/accel/tcg/user-exec-stub.c          |14.3%    14|14.3%   7|    -    0
+qemu-8.0.5/accel/tcg/user-exec.c               |28.8%   586|25.5%  47|32.9%  249
+qemu-8.0.5/cpu.c                               |31.1%   122|35.7%  14|19.0%   42
+qemu-8.0.5/disas.c                             | 0.0%   134| 0.0%  18| 0.0%   36
+qemu-8.0.5/fpu/softfloat-parts-addsub.c.inc    | 0.0%    32| 0.0%   4| 0.0%  264
+qemu-8.0.5/fpu/softfloat-parts.c.inc           | 0.0%   783| 0.0%  37| 0.0% 4919
+qemu-8.0.5/fpu/softfloat-specialize.c.inc      | 0.0%   136| 0.0%  16| 0.0%  560
+qemu-8.0.5/fpu/softfloat.c                     | 0.0%  2131| 0.0% 386| 0.0% 3036
+qemu-8.0.5/gdbstub/user-target.c               | 0.0%    52| 0.0%   6| 0.0%   18
+qemu-8.0.5/include/exec/cpu-all.h              |87.5%     8|    -   0| 5.0%  419
+qemu-8.0.5/include/exec/cpu_ldst.h             |78.6%    14|    -   0|25.8%   66
+qemu-8.0.5/include/exec/exec-all.h             | 100%    14|    -   0|50.0%   28
+qemu-8.0.5/include/exec/gen-icount.h           |62.5%    24|66.7%   3|50.0%   10
+qemu-8.0.5/include/exec/memop.h                | 100%     2|    -   0|50.0%    2
+qemu-8.0.5/include/exec/memopidx.h             |66.7%     6|    -   0|50.0%   16
+qemu-8.0.5/include/exec/plugin-gen.h           |40.0%    10| 100%   1|16.7%    6
+qemu-8.0.5/include/exec/translator.h           |83.3%    12|    -   0|42.9%   14
+qemu-8.0.5/include/exec/tswap.h                | 0.0%     3|    -   0|    -    0
+qemu-8.0.5/include/exec/user/thunk.h           |92.2%    51| 100%   2|91.7%   24
+qemu-8.0.5/include/fpu/softfloat-helpers.h     |34.6%    26|    -   0|25.0%   16
+qemu-8.0.5/include/fpu/softfloat-macros.h      | 0.0%   134| 0.0%   3| 0.0%  200
+qemu-8.0.5/include/fpu/softfloat.h             | 0.0%    86|    -   0| 0.0%  360
+qemu-8.0.5/include/gdbstub/helpers.h           | 0.0%    20| 0.0%   2|    -    0
+qemu-8.0.5/include/hw/core/cpu.h               |12.5%     8|66.7%   3| 0.0%   10
+qemu-8.0.5/include/hw/qdev-core.h              | 100%     1| 100%   2|    -    0
+qemu-8.0.5/include/hw/resettable.h             | 100%     1| 100%   1|    -    0
+qemu-8.0.5/include/qapi/error.h                | 100%     3|    -   0|    -    0
+qemu-8.0.5/include/qemu/atomic128.h            | 0.0%     6|    -   0|    -    0
+qemu-8.0.5/include/qemu/bitmap.h               | 100%     3|    -   0|    -    0
+qemu-8.0.5/include/qemu/bitops.h               |73.2%    56| 0.0%   5| 8.9%  900
+qemu-8.0.5/include/qemu/bswap.h                |45.7%    46|    -   0| 9.8%   61
+qemu-8.0.5/include/qemu/cpuid.h                | 100%     4|    -   0|50.0%    2
+qemu-8.0.5/include/qemu/help_option.h          | 0.0%     2| 0.0%   1| 0.0%    4
+qemu-8.0.5/include/qemu/host-utils.h           |13.5%    89| 0.0%   3| 2.4%  370
+qemu-8.0.5/include/qemu/int128.h               | 0.0%    22|    -   0| 0.0%   36
+qemu-8.0.5/include/qemu/lockable.h             | 100%    12| 100%   1|25.0%    8
+qemu-8.0.5/include/qemu/log-for-trace.h        | 100%     2|    -   0|10.9%   46
+qemu-8.0.5/include/qemu/osdep.h                | 100%     2|    -   0|75.0%    4
+qemu-8.0.5/include/qemu/plugin.h               |11.4%    35| 0.0%   3|16.7%   12
+qemu-8.0.5/include/qemu/rcu.h                  |87.5%    16| 100%   2|50.0%    8
+qemu-8.0.5/include/qemu/thread.h               |59.1%    22|60.0%   5|40.0%   10
+qemu-8.0.5/include/qemu/timer.h                | 0.0%    18| 0.0%   2| 0.0%    2
+qemu-8.0.5/include/qemu/xxhash.h               |94.7%    38|50.0%   2|    -    0
+qemu-8.0.5/include/tcg/tcg-cond.h              |66.7%     6|    -   0| 8.3%   12
+qemu-8.0.5/include/tcg/tcg-gvec-desc.h         | 0.0%     9|    -   0| 0.0% 1324
+qemu-8.0.5/include/tcg/tcg-op.h                |37.6%   210|37.8%  45|13.5%   96
+qemu-8.0.5/include/tcg/tcg-temp-internal.h     |22.2%    27|22.2%   9|12.5%    8
+qemu-8.0.5/include/tcg/tcg.h                   |81.1%   111|77.8%   9|35.4%  356
+qemu-8.0.5/include/user/syscall-trace.h        | 100%     8| 100%   2|    -    0
+qemu-8.0.5/linux-user/arm/cpu_loop.c           |46.1%   204|71.4%   7|28.2%  117
+qemu-8.0.5/linux-user/arm/nwfpe/double_cpdo.c  | 0.0%    66| 0.0%   1| 0.0%   25
+qemu-8.0.5/linux-user/arm/nwfpe/extended_cpdo.c| 0.0%    70| 0.0%   1| 0.0%   26
+qemu-8.0.5/linux-user/arm/nwfpe/fpa11.c        | 0.0%    60| 0.0%   4| 0.0%   28
+qemu-8.0.5/linux-user/arm/nwfpe/fpa11.h        | 0.0%     8| 0.0%   1| 0.0%    8
+qemu-8.0.5/linux-user/arm/nwfpe/fpa11.inl      | 0.0%     7|    -   0| 0.0%    2
+qemu-8.0.5/linux-user/arm/nwfpe/fpa11_cpdo.c   | 0.0%    38| 0.0%   1| 0.0%   22
+qemu-8.0.5/linux-user/arm/nwfpe/fpa11_cpdt.c   | 0.0%   191| 0.0%  13| 0.0%  133
+qemu-8.0.5/linux-user/arm/nwfpe/fpa11_cprt.c   | 0.0%   112| 0.0%   5| 0.0%   59
+qemu-8.0.5/linux-user/arm/nwfpe/fpopcode.c     | 0.0%    15| 0.0%   2| 0.0%    9
+qemu-8.0.5/linux-user/arm/nwfpe/fpopcode.h     | 0.0%     6|    -   0| 0.0%    2
+qemu-8.0.5/linux-user/arm/nwfpe/single_cpdo.c  | 0.0%    54| 0.0%   1| 0.0%   22
+qemu-8.0.5/linux-user/arm/signal.c             |46.8%   284|42.9%  14|22.2%   72
+qemu-8.0.5/linux-user/arm/target_cpu.h         |66.7%    18| 100%   1|25.0%   20
+qemu-8.0.5/linux-user/arm/target_elf.h         | 100%     2|    -   0|    -    0
+qemu-8.0.5/linux-user/elfload.c                |46.3%  1047|42.6%  47|34.9%  619
+qemu-8.0.5/linux-user/errnos.c.inc             | 0.0%    97|    -   0|    -    0
+qemu-8.0.5/linux-user/exit.c                   |33.3%     6| 100%   1|    -    0
+qemu-8.0.5/linux-user/fd-trans.c               | 0.0%   426| 0.0%  38| 0.0%  221
+qemu-8.0.5/linux-user/fd-trans.h               |13.0%    46|12.5%   8| 6.2%   32
+qemu-8.0.5/linux-user/flatload.c               | 0.0%   224| 0.0%   6| 0.0%  100
+qemu-8.0.5/linux-user/...t/x86_64/host-signal.h| 0.0%    10|    -   0| 0.0%   10
+qemu-8.0.5/linux-user/linuxload.c              |51.2%    84|75.0%   4|32.0%   50
+qemu-8.0.5/linux-user/main.c                   |35.7%   381|11.8%  34|25.7%  152
+qemu-8.0.5/linux-user/mmap.c                   |38.9%   427|60.0%  15|20.8%  332
+qemu-8.0.5/linux-user/qemu.h                   |66.7%     9| 100%   1|50.0%    4
+qemu-8.0.5/linux-user/semihost.c               | 0.0%    14| 0.0%   2| 0.0%    2
+qemu-8.0.5/linux-user/signal-common.h          |33.3%     6|    -   0| 0.0%   10
+qemu-8.0.5/linux-user/signal.c                 |44.0%   536|45.7%  35|30.1%  272
+qemu-8.0.5/linux-user/strace.c                 | 0.0%  2061| 0.0% 150| 0.0%  620
+qemu-8.0.5/linux-user/syscall.c                | 3.3%  5626| 5.0% 180| 1.9% 3784
+qemu-8.0.5/linux-user/syscall_defs.h           | 0.0%    12|    -   0| 0.0%    4
+qemu-8.0.5/linux-user/syscall_types.h          | 100%    98|    -   0|    -    0
+qemu-8.0.5/linux-user/thunk.c                  |22.7%   242|50.0%  10|17.5%   80
+qemu-8.0.5/linux-user/trace-events             | 0.0%    20|    -   0|    -    0
+qemu-8.0.5/linux-user/uaccess.c                |67.6%    37|60.0%   5|33.3%   30
+qemu-8.0.5/linux-user/uname.c                  |69.8%    43|80.0%   5|39.3%   28
+qemu-8.0.5/linux-user/user-internals.h         |33.3%     6|    -   0| 1.6%  192
+qemu-8.0.5/page-vary.c                         |50.0%     4|50.0%   2|    -    0
+qemu-8.0.5/plugins/api.c                       | 0.0%   115| 0.0%  38| 0.0%   18
+qemu-8.0.5/plugins/core.c                      |16.2%   259|16.2%  37|12.0%   75
+qemu-8.0.5/plugins/loader.c                    | 4.3%   188| 9.1%  11| 1.1%   94
+qemu-8.0.5/semihosting/arm-compat-semi.c       | 0.0%   261| 0.0%   8| 0.0%  329
+qemu-8.0.5/semihosting/guestfd.c               |13.0%    46|16.7%   6| 2.9%   34
+qemu-8.0.5/semihosting/syscalls.c              | 0.0%   481| 0.0%  42| 0.0%  188
+qemu-8.0.5/target/arm/arm_ldst.h               | 100%     4|    -   0| 100%    2
+qemu-8.0.5/target/arm/common-semi-target.h     | 0.0%    23| 0.0%   3| 0.0%   86
+qemu-8.0.5/target/arm/cpregs.h                 |46.9%    32|50.0%   2|38.1%   42
+qemu-8.0.5/target/arm/cpu-qom.h                | 100%     1| 100%   3|    -    0
+qemu-8.0.5/target/arm/cpu.c                    |39.5%   706|45.5%  33|25.0%  428
+qemu-8.0.5/target/arm/cpu.h                    |37.3%   314|27.8%  18| 9.4% 1678
+qemu-8.0.5/target/arm/cpu_tcg.c                |13.6%   784|10.3%  39| 100%    2
+qemu-8.0.5/target/arm/debug_helper.c           |19.2%   333|15.6%  32| 6.1%  244
+qemu-8.0.5/target/arm/gdbstub.c                |23.1%   221|20.0%  20|12.6%  135
+qemu-8.0.5/target/arm/helper-mve.h             | 0.0%   674| 0.0% 674|    -    0
+qemu-8.0.5/target/arm/helper.c                 |24.3%  2168|12.9% 263|19.5% 1421
+qemu-8.0.5/target/arm/helper.h                 | 0.3%   584| 0.3% 644|    -    0
+qemu-8.0.5/target/arm/internals.h              | 9.1%   275|21.1%  19| 4.5%  267
+qemu-8.0.5/target/arm/kvm-stub.c               | 0.0%     4| 0.0%   2|    -    0
+qemu-8.0.5/target/arm/op_addsub.h              | 0.0%    46| 0.0%  36| 0.0%   32
+qemu-8.0.5/target/arm/syndrome.h               |16.7%    54|    -   0|25.0%   12
+qemu-8.0.5/target/arm/tcg/crypto_helper.c      | 0.0%   377| 0.0%  34| 0.0%   56
+qemu-8.0.5/target/arm/tcg/hflags.c             |20.9%   163|42.9%  14| 9.8%  133
+qemu-8.0.5/target/arm/tcg/iwmmxt_helper.c      | 0.0%   249| 0.0% 105| 0.0%  548
+qemu-8.0.5/target/arm/tcg/m_helper.c           | 0.0%    59| 0.0%  13| 0.0%   33
+qemu-8.0.5/target/arm/tcg/mve_helper.c         | 0.0%   854| 0.0% 685| 0.0% 2801
+qemu-8.0.5/target/arm/tcg/neon_helper.c        | 0.0%   818| 0.0% 166| 0.0%  388
+qemu-8.0.5/target/arm/tcg/op_helper.c          | 4.5%   424| 6.5%  46| 2.6%  235
+qemu-8.0.5/target/arm/tcg/tlb_helper.c         | 0.0%    67| 0.0%   8| 0.0%   24
+qemu-8.0.5/target/arm/tcg/translate-m-nocp.c   | 0.0%   317| 0.0%  15| 0.0%  200
+qemu-8.0.5/target/arm/tcg/translate-mve.c      | 0.0%   843| 0.0% 310| 0.0%  816
+qemu-8.0.5/target/arm/tcg/translate-neon.c     | 0.0%  1522| 0.0% 398| 0.0% 1266
+qemu-8.0.5/target/arm/tcg/translate-vfp.c      | 2.6%  1488| 3.0% 132| 2.0%  936
+qemu-8.0.5/target/arm/tcg/translate.c          |17.8%  4410|21.6% 529|15.5% 1963
+qemu-8.0.5/target/arm/tcg/translate.h          |33.3%    87|14.3%   7|10.3%  350
+qemu-8.0.5/target/arm/tcg/vec_helper.c         | 0.0%  1221| 0.0% 306| 0.0% 1516
+qemu-8.0.5/target/arm/tcg/vec_internal.h       | 0.0%    79| 0.0%   6| 0.0%  570
+qemu-8.0.5/target/arm/translate-a32.h          |18.2%    22| 0.0%   2| 7.8%   51
+qemu-8.0.5/target/arm/vfp_helper.c             | 5.0%   606| 2.4% 166| 2.0%  348
+qemu-8.0.5/tcg/i386/tcg-target-con-str.h       |75.0%    16|    -   0|    -    0
+qemu-8.0.5/tcg/i386/tcg-target.c.inc           |37.8%  1664|62.0%  71|30.7%  901
+qemu-8.0.5/tcg/optimize.c                      |41.8%  1224|65.8%  73|35.7%  761
+qemu-8.0.5/tcg/region.c                        |43.9%   271|44.4%  27|29.4%  126
+qemu-8.0.5/tcg/tcg-internal.h                  |50.0%    12| 0.0%   2|60.0%   10
+qemu-8.0.5/tcg/tcg-ldst.c.inc                  | 100%    11| 100%   1|75.0%    8
+qemu-8.0.5/tcg/tcg-op-gvec.c                   | 0.0%  1916| 0.0% 158| 0.0%  714
+qemu-8.0.5/tcg/tcg-op-vec.c                    | 0.0%   444| 0.0%  59| 0.0%  188
+qemu-8.0.5/tcg/tcg-op.c                        |14.3%  1487|15.5% 200|10.5%  607
+qemu-8.0.5/tcg/tcg-pool.c.inc                  |97.7%    43| 100%   3|75.0%   24
+qemu-8.0.5/tcg/tcg.c                           |54.9%  2191|72.3%  83|38.5% 1373
+qemu-8.0.5/trace-events                        | 0.0%     8|    -   0|    -    0
+qemu-8.0.5/trace/control-internal.h            | 100%     7| 100%   1|35.7%   14
+qemu-8.0.5/trace/control-target.c              |13.0%    77|14.3%   7|13.0%   46
+qemu-8.0.5/trace/control-vcpu.h                |66.7%     3|    -   0|25.0%    8
+
+[/usr/include/glib-2.0/glib/]
+glib-autocleanups.h                            |33.3%     9| 0.0%   1| 0.0%    4
+gmem.h                                         | 0.0%     3|    -   0|    -    0
+
+[/usr/include/]
+stdlib.h                                       | 0.0%     2|    -   0| 0.0%    2
+
+[/usr/include/x86_64-linux-gnu/bits/]
+byteswap.h                                     | 0.0%     4|    -   0| 0.0%    6
+fcntl2.h                                       |71.4%     7|    -   0| 0.0%    2
+mqueue2.h                                      | 0.0%     7|    -   0| 0.0%    2
+socket.h                                       | 0.0%     8|    -   0| 0.0%   12
+stdio2.h                                       | 0.0%    19|    -   0| 0.0%   12
+stdlib-bsearch.h                               | 0.0%    13|    -   0| 0.0%    6
+stdlib.h                                       | 100%     4|    -   0|    -    0
+string_fortified.h                             |50.0%     8|    -   0|22.7%   22
+unistd.h                                       |33.3%    12|    -   0| 7.7%  104
+
+[/usr/include/x86_64-linux-gnu/sys/]
+sysmacros.h                                    | 0.0%     2|    -   0|    -    0
+
+[/usr/lib/gcc/x86_64-linux-gnu/11/include/]
+cpuid.h                                        | 100%     5|    -   0|50.0%    4
+================================================================================
+                                         Total:|14.5% 58706| 8.3%  7k| 7.2%  51k

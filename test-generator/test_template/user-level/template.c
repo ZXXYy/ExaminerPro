@@ -5,11 +5,11 @@
 #include <sys/mman.h>
 
 #define PAGE_SIZE 4096
-#ifdef __aarch64__
-    #define TRAP_DEBUGGER __asm__ volatile("brk #0") 
-#else
-    #define TRAP_DEBUGGER __asm__ volatile(".long 0xe7ffdeff")
-#endif
+// #ifdef __aarch64__
+//     #define TRAP_DEBUGGER __asm__ volatile("brk #0") 
+// #else
+//     #define TRAP_DEBUGGER __asm__ volatile(".long 0xe7ffdeff")
+// #endif
 
 
 uint8_t sig_stack_array[SIGSTKSZ];
@@ -70,7 +70,6 @@ int main()
     //     fprintf(stderr, "null access requires running as root\n");
     //     exit(-1);
     // }
-
     init_sig_handlers();
 #ifdef __aarch64__
     __asm__ __volatile__(
@@ -124,11 +123,9 @@ int main()
         "mov r11, %[reg_init]       \n"
         "mov r12, %[reg_init]       \n"
         "mov r14, %[reg_init]       \n"
-        "mov r13, r0                \n"
         :
         : [reg_init] "n"(0));
 #endif
-    TRAP_DEBUGGER;
     __asm__ __volatile__(
         ".global inst_location\n"
         "inst_location:\n"
@@ -138,13 +135,13 @@ int main()
         "nop\n"
         ".global bkpt_location\n"
         "bkpt_location:\n"
-// #ifdef __aarch64__
-//         "brk #0\n"
-// #else
-//         "bkpt #0\n"
-// #endif
+#ifdef __aarch64__
+        "brk #0\n"
+#else
+        "bkpt #0\n"
+#endif
     );
-    TRAP_DEBUGGER;
+    // printf("after run\n");
 
     // 正常情况下, 不会到达这里
     exit(0);

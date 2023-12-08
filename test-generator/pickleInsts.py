@@ -8,10 +8,9 @@ from utils.utils import bin2bytes
 @click.argument("instsfile", type=click.File("r"))
 @click.argument('strategy', type=str)
 @click.argument('encoding', type=str)
-@click.option('--thumb', is_flag=True)
-def main(instsfile, strategy, encoding, thumb):
+def main(instsfile, strategy, encoding):
     insts = {}
-    mode = 'thumb' if thumb else ''
+    mode = 'thumb' if encoding == 'T16' or encoding == 'T32' else ''
     for i, line in enumerate(instsfile):
         if strategy == 'symbolic' and (encoding == 'T16' or encoding == 'A64'):
             name, _, inst = line.split(" ")

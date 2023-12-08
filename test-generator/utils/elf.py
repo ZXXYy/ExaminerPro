@@ -27,6 +27,7 @@ def parse_template(mode, level, dump):
     root_path = dirname(dirname(abspath(__file__)))
     if level == "user":
         template_path = join(root_path, "test_template/user-level/template_{}".format(mode))
+        print(template_path)
         with open(template_path, "rb") as f:
             elffile = ELFFile(f)
             symtab = elffile.get_section_by_name(".symtab")

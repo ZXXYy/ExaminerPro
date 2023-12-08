@@ -60,13 +60,13 @@ def test_user_level_coverage():
     try:
         subprocess.run(['python3', user_scripts_to_run[0]] + user_scripts_arguments[0], check=True)
         subprocess.run(['python3', user_scripts_to_run[1]] + user_scripts_arguments[1], check=True)
-        # subprocess.run(['python3', user_scripts_to_run[2]] + user_scripts_arguments[2], check=True)
+        subprocess.run(['python3', user_scripts_to_run[2]] + user_scripts_arguments[2], check=True)
         subprocess.run(['rm', f'pickled_{temp}'], check=True)
-        # subprocess.run(['rm', '-r', f'./testcases-{level}-{mode}/'], check=True)
-        # subprocess.run(['rm', '-r', f'./state_qemu'], check=True)
+        subprocess.run(['rm', '-r', f'./testcases-{level}-{mode}/'], check=True)
+        subprocess.run(['rm', '-r', f'./state_qemu'], check=True)
         # get coverage info
-        # get_coverage_info('/home/zxy/qemu/build/libqemu-arm-linux-user.fa.p', strategy, level, encoding, False)
-        # get_coverage_info('/home/zxy/qemu/build', strategy, level, encoding, True)
+        get_coverage_info('/home/zxy/qemu/build/libqemu-arm-linux-user.fa.p', strategy, level, encoding, False)
+        get_coverage_info('/home/zxy/qemu/build', strategy, level, encoding, True)
         # clear gcda data
         remove_gcda_files('/home/zxy/qemu/build')
 
