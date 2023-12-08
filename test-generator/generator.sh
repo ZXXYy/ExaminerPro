@@ -32,14 +32,14 @@ else
     pickle_file=$2.txt
 fi
 
-echo "[1] Generating Instructions for $1 $2..."
-python3 genInsts.py --altslicesyntax --demangle --verbose -o mra_tools/arch/arch $xml_file --encoding $2 --arch $1 --strategy $4
-# cp /home/zxy/TSE-ExaminerPro/test-generator/build/$4/$2/$2.txt $pickle_file
-# echo "[2] Pickling Instructions for $1 $2..."
-# python3 pickleInsts.py $pickle_file $4 $2
+# echo "[1] Generating Instructions for $1 $2..."
+# python3 genInsts.py --altslicesyntax --demangle --verbose -o mra_tools/arch/arch $xml_file --encoding $2 --arch $1 --strategy $4
+cp /home/zxy/TSE-ExaminerPro/test-generator/build/$4/$2/$2.txt $pickle_file
+echo "[2] Pickling Instructions for $1 $2..."
+python3 pickleInsts.py $pickle_file $4 $2
 
-# echo "[3.1] Generating Test Cases from template for $1 $2 at user level..."
-# python3 genTests.py --file pickled_$pickle_file --mode $3 --level user
+echo "[3.1] Generating Test Cases from template for $1 $2 at user level..."
+python3 genTests.py --file pickled_$pickle_file --mode $3 --level user
 
 # echo "[3.2] Generating Test Cases from template for $1 $2 at system level..."
 # echo "[3.2.1] Spliting Test Cases for $1 $2 at system level..."
@@ -57,7 +57,7 @@ python3 genInsts.py --altslicesyntax --demangle --verbose -o mra_tools/arch/arch
 #     mkdir "build/$4/$2"
 # fi
 
-mv $2* build/$4/$2/
+# mv $2* build/$4/$2/
 # mv pickled_$pickle_file build/$4/$2/pickled_$2.txt
 # mv pickled_normal_insts_$2 build/$4/$2/pickled_normal_insts_$2
 # mv pickled_str_insts_$2 build/$4/$2/pickled_str_insts_$2

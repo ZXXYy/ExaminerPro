@@ -25,7 +25,7 @@ if [ "$5" != "random" ] && [ "$5" != "symbolic" ] && [ "$5" != "random-symbols" 
 fi
 
 echo "[1] Testing Instructions in $1 $2-level for $3-$4..."
-python3 $2-level/run_$1.py ../test-generator/build/$5/$4/testcases --env $1 --cpu $3
+python3 $2-level/run_$1.py /home/zxy/TSE-ExaminerPro/analyzer/RQ1-test-sufficiency/testcases-user-arm --env $1 --cpu $3
 
 echo "[2] Moving outputs to build"
 if [ ! -d "build/$5" ]; then

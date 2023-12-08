@@ -16,7 +16,6 @@ def run(testcases_dir, output_dir, cmds):
     for filename in tqdm(os.listdir(testcases_dir)):
         testcase_path = path.join(testcases_dir, filename)
         output_path = path.join(output_dir, filename)
-        # print("Run " + testcase_path)
         with open(output_path, "w") as f:
             try:
                 subprocess.run(

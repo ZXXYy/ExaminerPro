@@ -13,12 +13,15 @@ def main(instsfile, strategy, encoding, thumb):
     insts = {}
     mode = 'thumb' if thumb else ''
     for i, line in enumerate(instsfile):
-        if encoding == 'A64' or encoding == 'T16':
+        if strategy == 'symbolic' and (encoding == 'T16' or encoding == 'A64'):
             name, _, inst = line.split(" ")
         else:
             name, inst = line.split(" ")
         insts[i] = (name, bin2bytes(inst, mode))
-    with open(f'pickled_{instsfile.name}', 'wb') as f:
+    
+    filename = instsfile.name.split('/')[-1]
+    print(f'pickled_{filename}')
+    with open(f'pickled_{filename}', 'wb') as f:
         pickle.dump(insts, f)
 
 

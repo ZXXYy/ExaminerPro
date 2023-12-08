@@ -1,16 +1,23 @@
 import subprocess
 import os
 
-arch = 'AArch32'
-encoding = 'A32'
-mode = 'arm'
+encoding = 'T16'
 strategy = 'symbolic'
 level = 'user'
 
-if arch == 'AArch32':
+if encoding in ['T16', 'T32', 'A32']:
+    arch = 'AArch32'
     cpu = 'cortex-a7'
-elif arch == 'AArch64':
+else:
+    arch = 'AArch64'
     cpu = 'cortex-a72'
+
+if encoding in ['T16', 'T32']:
+    mode = 'thumb'
+elif encoding == 'A32':
+    mode = 'arm'
+elif encoding == 'A64':
+    mode = 'arm64'
 
 def get_coverage_info(dir, strategy, level, encoding, flag):
     outfile = f'coverage-{strategy}-{level}-{encoding}-all.info' if flag else f'coverage-{strategy}-{level}-{encoding}.info'
@@ -33,9 +40,14 @@ def test_user_level_coverage():
         '../../diff-engine/user-level/run_qemu.py'
     ]
 
+    if strategy == 'symbolic':
+        inputfile = f'../../test-generator/build/{strategy}/{encoding}/{encoding}.txt'
+    else:
+        inputfile = f'./{strategy}/{encoding}/{encoding}_0.txt'
+    temp = inputfile.split('/')[-1]
     user_scripts_arguments = [
-        [f'{encoding}.txt', strategy, encoding],
-        ['--file', f'pickled_{encoding}.txt', 
+        [inputfile, strategy, encoding],
+        ['--file', f'pickled_{temp}', 
         '--mode', mode,
         '--level', 'user'
         ],
@@ -46,16 +58,15 @@ def test_user_level_coverage():
     ]
 
     try:
-        subprocess.run(['cp', f'./{strategy}/{encoding}/{encoding}.txt', f'./{encoding}.txt'], check=True)
         subprocess.run(['python3', user_scripts_to_run[0]] + user_scripts_arguments[0], check=True)
         subprocess.run(['python3', user_scripts_to_run[1]] + user_scripts_arguments[1], check=True)
-        subprocess.run(['python3', user_scripts_to_run[2]] + user_scripts_arguments[2], check=True)
-        subprocess.run(['rm', f'./{encoding}.txt', f'pickled_{encoding}.txt'], check=True)
-        subprocess.run(['rm', '-r', f'./testcases-{level}-{mode}/'], check=True)
-        subprocess.run(['rm', '-r', f'./state_qemu'], check=True)
+        # subprocess.run(['python3', user_scripts_to_run[2]] + user_scripts_arguments[2], check=True)
+        subprocess.run(['rm', f'pickled_{temp}'], check=True)
+        # subprocess.run(['rm', '-r', f'./testcases-{level}-{mode}/'], check=True)
+        # subprocess.run(['rm', '-r', f'./state_qemu'], check=True)
         # get coverage info
-        get_coverage_info('/home/zxy/qemu/build/libqemu-arm-linux-user.fa.p', strategy, level, encoding, False)
-        get_coverage_info('/home/zxy/qemu/build', strategy, level, encoding, True)
+        # get_coverage_info('/home/zxy/qemu/build/libqemu-arm-linux-user.fa.p', strategy, level, encoding, False)
+        # get_coverage_info('/home/zxy/qemu/build', strategy, level, encoding, True)
         # clear gcda data
         remove_gcda_files('/home/zxy/qemu/build')
 
