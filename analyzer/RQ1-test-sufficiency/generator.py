@@ -44,14 +44,14 @@ def main():
         if not os.path.exists(f"{strategy}/{encoding}"):
             os.makedirs(f"{strategy}/{encoding}")
         # Run the script using subprocess
-        for i in range(10):
+        for i in range(1):
             subprocess.run(['python3', script_to_run] + script_arguments, check=True)
-            subprocess.run(['mv', f'{encoding}_orig.txt', f'{strategy}/{encoding}/{encoding}_orig_{i}.txt'], check=True)
-            subprocess.run(['mv', f'{encoding}.txt', f'{strategy}/{encoding}/{encoding}_{i}.txt'], check=True)
-            subprocess.run(['mv', f'{encoding}_constraints.json', f'{strategy}/{encoding}/{encoding}_constraints_{i}.json'], check=True)
-            if strategy == 'symbolic' and encoding in ['T16', 'T32', 'A32']: 
-                subprocess.run(['mv', f'{encoding}_filter.txt', f'{strategy}/{encoding}/{encoding}_filter_{i}.txt'], check=True)
-                subprocess.run(['mv', f'{encoding}_filter_constraints.json', f'{strategy}/{encoding}/{encoding}_filter_constraints_{i}.json'], check=True)
+            # subprocess.run(['mv', f'{encoding}_orig.txt', f'{strategy}/{encoding}/{encoding}_orig_{i}.txt'], check=True)
+            # subprocess.run(['mv', f'{encoding}.txt', f'{strategy}/{encoding}/{encoding}_{i}.txt'], check=True)
+            # subprocess.run(['mv', f'{encoding}_constraints.json', f'{strategy}/{encoding}/{encoding}_constraints_{i}.json'], check=True)
+            # if strategy == 'symbolic' and encoding in ['T16', 'T32', 'A32']: 
+            #     subprocess.run(['mv', f'{encoding}_filter.txt', f'{strategy}/{encoding}/{encoding}_filter_{i}.txt'], check=True)
+            #     subprocess.run(['mv', f'{encoding}_filter_constraints.json', f'{strategy}/{encoding}/{encoding}_filter_constraints_{i}.json'], check=True)
 
     except subprocess.CalledProcessError as e:
         print(f"Error running {script_to_run}: {e}")

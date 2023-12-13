@@ -12,7 +12,7 @@ def main(instsfile, strategy, encoding):
     insts = {}
     mode = 'thumb' if encoding == 'T16' or encoding == 'T32' else ''
     for i, line in enumerate(instsfile):
-        if strategy == 'symbolic' and (encoding == 'T16' or encoding == 'A64'):
+        if strategy == 'symbolic' and (encoding == 'T16'):
             name, _, inst = line.split(" ")
         else:
             name, inst = line.split(" ")

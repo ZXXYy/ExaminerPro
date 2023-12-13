@@ -1,7 +1,7 @@
 import subprocess
 import os
 
-encoding = 'T16'
+encoding = 'A64'
 strategy = 'symbolic'
 level = 'user'
 
@@ -65,7 +65,10 @@ def test_user_level_coverage():
         subprocess.run(['rm', '-r', f'./testcases-{level}-{mode}/'], check=True)
         subprocess.run(['rm', '-r', f'./state_qemu'], check=True)
         # get coverage info
-        get_coverage_info('/home/zxy/qemu/build/libqemu-arm-linux-user.fa.p', strategy, level, encoding, False)
+        if arch == 'AArch64':
+            get_coverage_info('/home/zxy/qemu/build/libqemu-aarch64-linux-user.fa.p', strategy, level, encoding, False)
+        else:
+            get_coverage_info('/home/zxy/qemu/build/libqemu-arm-linux-user.fa.p', strategy, level, encoding, False)
         get_coverage_info('/home/zxy/qemu/build', strategy, level, encoding, True)
         # clear gcda data
         remove_gcda_files('/home/zxy/qemu/build')

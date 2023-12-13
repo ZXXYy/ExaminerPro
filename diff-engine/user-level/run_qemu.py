@@ -1,6 +1,7 @@
 import os
 import time
 import subprocess
+import multiprocessing
 from os import path
 from subprocess import TimeoutExpired
 from argparse import ArgumentParser
@@ -11,18 +12,42 @@ directory = path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.dirname(directory))
 from utils import pickle_file
 
-def run(testcases_dir, output_dir, cmds):
-    timeout = set()
-    for filename in tqdm(os.listdir(testcases_dir)):
+timeout = set()
+lock = multiprocessing.Lock()
+
+def work(cmd, outfile):
+    global timeout, lock
+    with open(outfile, "w") as f:
+        try:
+            subprocess.run(
+                cmd, stdout=f, stderr=subprocess.PIPE, timeout=5
+            )
+        except TimeoutExpired:
+            with lock:
+                timeout.add(int(cmd[-1].split('/')[-1]))
+
+def init_pool_processes(the_lock):
+    '''Initialize each process with a global variable lock.
+    '''
+    global lock
+    lock = the_lock
+
+def run(testcases_dir, output_dir, cmd):
+    task_cmds = []
+    task_outfiles = []
+    testcases = os.listdir(testcases_dir)
+    for filename in tqdm(testcases):
         testcase_path = path.join(testcases_dir, filename)
         output_path = path.join(output_dir, filename)
-        with open(output_path, "w") as f:
-            try:
-                subprocess.run(
-                    cmds + [testcase_path], stdout=f, stderr=subprocess.PIPE, timeout=5
-                )
-            except TimeoutExpired:
-                timeout.add(int(filename))
+        task_cmds.append(cmd + [testcase_path])
+        task_outfiles.append(output_path)
+    
+    count = multiprocessing.cpu_count()
+    print(f"cpu cores = {count}")
+    pool = multiprocessing.Pool(processes=count, initializer=init_pool_processes, initargs=(lock,))
+    pool.starmap(work, tqdm([(item, task_outfiles[i]) for i, item in enumerate(task_cmds)], total=len(task_cmds)))
+    
+
     return timeout
 
 
@@ -48,7 +73,7 @@ def main():
     if env == "physical":
         cmds = []
     elif env == "qemu" and cpu in AARCH64_CPU:
-        cmds = ["qemu-aarch64", "-cpu", cpu]
+        cmds = ["/home/zxy/qemu/build/aarch64-linux-user/qemu-aarch64", "-cpu", cpu]
     elif env == "qemu" and cpu in ARM_CPU:
         cmds = ["/home/zxy/qemu/build/arm-linux-user/qemu-arm", "-cpu", cpu]
     else:
