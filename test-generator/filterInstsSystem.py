@@ -207,16 +207,16 @@ def main(mode, instsfile, outdir):
         # print(str(id)+" "+str(inst_type))
         if inst_type == InstType.BR or inst_type == InstType.PREVILEGE:
             filter_insts[len(filter_insts)] = (name, inst)
-        elif inst_type == InstType.STR:
-            str_insts[len(str_insts)] = (name, inst)
+        # elif inst_type == InstType.STR:
+        #     str_insts[len(str_insts)] = (name, inst)
         else:
             noraml_insts[len(noraml_insts)] = (name, inst)
 
     if not os.path.exists(outdir):
         os.makedirs(outdir)
 
-    with open(f'{outdir}/pickled_str_insts_{output_suffix}', 'wb') as f:
-        pickle.dump(str_insts, f)
+    # with open(f'{outdir}/pickled_str_insts_{output_suffix}', 'wb') as f:
+    #     pickle.dump(str_insts, f)
     with open(f'{outdir}/pickled_normal_insts_{output_suffix}', 'wb') as f:
         pickle.dump(noraml_insts, f)
     with open(f'{outdir}/pickled_filter_insts_{output_suffix}', 'wb') as f:

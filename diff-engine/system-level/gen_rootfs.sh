@@ -12,7 +12,7 @@ if [ "$3" != "arm" ] && [ "$3" != "thumb" ] && [ "$3" != "arm64" ]; then
     exit 1
 fi
 cur_dir=$(pwd)
-testcase_dir="$cur_dir/../../test-generator/build/$2/$1/testcases-system-$3"
+testcase_dir="/home/zxy/TSE-ExaminerPro/analyzer/RQ1-test-sufficiency/testcases-system-$3"
 target_dir="$cur_dir/../build/rootfs-$3"
 
 cp -r "$testcase_dir" "$target_dir"

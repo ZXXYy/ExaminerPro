@@ -1,9 +1,9 @@
 import subprocess
 import os
 
-encoding = 'A64'
+encoding = 'A32'
 strategy = 'symbolic'
-level = 'user'
+level = 'system'
 
 if encoding in ['T16', 'T32', 'A32']:
     arch = 'AArch32'
@@ -78,6 +78,49 @@ def test_user_level_coverage():
         print(f"Error running: {e}")
 
 def test_system_level_coverage():
-    pass
+    if strategy == 'symbolic':
+        inputfile = f'../../test-generator/build/{strategy}/{encoding}/{encoding}.txt'
+    else:
+        inputfile = f'./{strategy}/{encoding}/{encoding}_0.txt'
+    temp = inputfile.split('/')[-1]
+    system_scripts = {
+        "../../test-generator/pickleInsts.py": [inputfile, strategy, encoding],
+        "../../test-generator/filterInstsSystem.py": [mode, f'pickled_{temp}'],
+        "../../test-generator/genTests.py": ['--file', f'pickled_normal_insts_{encoding}', 
+                                             '--mode', mode,
+                                             '--level', 'system'
+                                            ],
+    }
+    try:
+        # mkdir if not exist
+        if not os.path.exists('/home/zxy/TSE-ExaminerPro/diff-engine/system-level/output_virt'):
+            os.mkdir(f'/home/zxy/TSE-ExaminerPro/diff-engine/system-level/output_virt')
+        subprocess.run(['python3', "../../test-generator/pickleInsts.py"] + system_scripts["../../test-generator/pickleInsts.py"], check=True)
+        subprocess.run(['python3', "../../test-generator/filterInstsSystem.py"] + system_scripts["../../test-generator/filterInstsSystem.py"], check=True)
+        subprocess.run(['python3', "../../test-generator/genTests.py"] + system_scripts["../../test-generator/genTests.py"], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error running: {e}")
 
-test_user_level_coverage()
+def after_run_system_level_coverage():
+    if strategy == 'symbolic':
+        inputfile = f'../../test-generator/build/{strategy}/{encoding}/{encoding}.txt'
+    else:
+        inputfile = f'./{strategy}/{encoding}/{encoding}_0.txt'
+    temp = inputfile.split('/')[-1]
+    subprocess.run(['rm', f'pickled_{temp}'], check=True)
+    subprocess.run(['rm', f'pickled_normal_insts_{encoding}'], check=True)
+    subprocess.run(['rm', '-r', f'./testcases-{level}-{mode}/'], check=True)
+    subprocess.run(['rm', '-r', '/home/zxy/TSE-ExaminerPro/diff-engine/system-level/output_virt'], check=True)
+    subprocess.run(['rm', '-r', f'/home/zxy/TSE-ExaminerPro/diff-engine/build/rootfs-{mode}/testcases-system-{mode}'], check=True)
+    # get coverage info
+    if arch == 'AArch64':
+        get_coverage_info('/home/zxy/qemu/build/libqemu-aarch64-softmmu.fa.p', strategy, level, encoding, False)
+    else:
+        get_coverage_info('/home/zxy/qemu/build/libqemu-arm-softmmu.fa.p', strategy, level, encoding, False)
+    get_coverage_info('/home/zxy/qemu/build', strategy, level, encoding, True)
+    # clear gcda data
+    # remove_gcda_files('/home/zxy/qemu/build')
+
+# test_user_level_coverage()
+# test_system_level_coverage()
+after_run_system_level_coverage()
