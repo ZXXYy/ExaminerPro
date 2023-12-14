@@ -20,9 +20,7 @@ define set-testcase-bp
     commands
         b do_sp_pc_abort
         command
-            printf "-------------------pabt----------------\n"
-            get-exception-state
-            p esr
+            printf "test case: %d\n", $cnt*$testnum+$loop
             set addr=$prepc
             set regs->uregs[15]=$prepc
             set $expcetion = 1
@@ -30,24 +28,19 @@ define set-testcase-bp
         end
         b do_mem_abort
         command
-            printf "-------------------dabt----------------\n"
-            get-exception-state
-            p esr
+            printf "test case: %d\n", $cnt*$testnum+$loop
             set $expcetion = 1
             continue
         end
         b do_ptrauth_fault
         command
-            printf "-------------------dabt----------------\n"
-            get-exception-state
-            p esr
+            printf "test case: %d\n", $cnt*$testnum+$loop
             set $expcetion = 1
             continue
         end
         b do_undefinstr
         command
-            printf "-------------------und----------------\n"
-            get-exception-state
+            printf "test case: %d\n", $cnt*$testnum+$loop
             set $expcetion = 1
             continue
         end
@@ -64,10 +57,6 @@ define set-testcase-bp
         set $prepc = $init_addr + $load_addr + ($loop)*3*4
         set $presp = $sp
         set $expcetion = 0
-        set logging off
-        eval "set logging file ./output_virt_time/%d.output", $cnt*$testnum+$loop
-        set logging overwrite on
-        set logging on
         printf "test case: %d\n", $cnt*$testnum+$loop++
         x/x $pc
         x/x $prepc
@@ -96,10 +85,6 @@ define set-testcase-bp
     end
     b finish_location
     command
-        printf "===================FINISH===================\n\n"
-        if $expcetion == 0
-            get-cpu-state
-        end
         if $testnum == $loop
             continue
         else

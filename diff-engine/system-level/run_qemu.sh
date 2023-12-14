@@ -22,7 +22,7 @@ elif [ "$1" == "arm64" ]; then
 	-kernel /home/zxy/TSE-ExaminerPro/test-generator/build/zImage_arm64 \
 	-cpu cortex-a72 \
 	-initrd ../build/rootfs-arm64.cpio.gz -append "root=/dev/mem console=ttyAMA0" \
-	-s -nographic -m size=1G
+	-gdb tcp::$2 -nographic -m size=1G
 fi
 # image_dir="/home/zxy/TSE-ExaminerPro/test-generator/build/zImage_arm64"
 

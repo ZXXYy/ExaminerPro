@@ -2,7 +2,7 @@ import subprocess
 import os
 
 encoding = 'A64'
-strategy = 'symbolic'
+strategy = 'random'
 level = 'system'
 
 if encoding in ['T16', 'T32', 'A32']:
@@ -102,25 +102,25 @@ def test_system_level_coverage():
         print(f"Error running: {e}")
 
 def after_run_system_level_coverage():
-    if strategy == 'symbolic':
-        inputfile = f'../../test-generator/build/{strategy}/{encoding}/{encoding}.txt'
-    else:
-        inputfile = f'./{strategy}/{encoding}/{encoding}_0.txt'
-    temp = inputfile.split('/')[-1]
-    subprocess.run(['rm', f'pickled_{temp}'], check=True)
-    subprocess.run(['rm', f'pickled_normal_insts_{encoding}'], check=True)
-    subprocess.run(['rm', '-r', f'./testcases-{level}-{mode}/'], check=True)
-    subprocess.run(['rm', '-r', '/home/zxy/TSE-ExaminerPro/diff-engine/system-level/output_virt'], check=True)
-    subprocess.run(['rm', '-r', f'/home/zxy/TSE-ExaminerPro/diff-engine/build/rootfs-{mode}/testcases-system-{mode}'], check=True)
-    # get coverage info
-    if arch == 'AArch64':
-        get_coverage_info('/home/zxy/qemu/build/libqemu-aarch64-softmmu.fa.p', strategy, level, encoding, False)
-    else:
-        get_coverage_info('/home/zxy/qemu/build/libqemu-arm-softmmu.fa.p', strategy, level, encoding, False)
-    get_coverage_info('/home/zxy/qemu/build', strategy, level, encoding, True)
+    # if strategy == 'symbolic':
+    #     inputfile = f'../../test-generator/build/{strategy}/{encoding}/{encoding}.txt'
+    # else:
+    #     inputfile = f'./{strategy}/{encoding}/{encoding}_0.txt'
+    # temp = inputfile.split('/')[-1]
+    # subprocess.run(['rm', f'pickled_{temp}'], check=True)
+    # subprocess.run(['rm', f'pickled_normal_insts_{encoding}'], check=True)
+    # subprocess.run(['rm', '-r', f'./testcases-{level}-{mode}/'], check=True)
+    # subprocess.run(['rm', '-r', '/home/zxy/TSE-ExaminerPro/diff-engine/system-level/output_virt'], check=True)
+    # subprocess.run(['rm', '-r', f'/home/zxy/TSE-ExaminerPro/diff-engine/build/rootfs-{mode}/testcases-system-{mode}'], check=True)
+    # # get coverage info
+    # if arch == 'AArch64':
+    #     get_coverage_info('/home/zxy/qemu/build/libqemu-aarch64-softmmu.fa.p', strategy, level, encoding, False)
+    # else:
+    #     get_coverage_info('/home/zxy/qemu/build/libqemu-arm-softmmu.fa.p', strategy, level, encoding, False)
+    # get_coverage_info('/home/zxy/qemu/build', strategy, level, encoding, True)
     # clear gcda data
-    # remove_gcda_files('/home/zxy/qemu/build')
+    remove_gcda_files('/home/zxy/qemu/build')
 
 # test_user_level_coverage()
-test_system_level_coverage()
-# after_run_system_level_coverage()
+# test_system_level_coverage()
+after_run_system_level_coverage()
