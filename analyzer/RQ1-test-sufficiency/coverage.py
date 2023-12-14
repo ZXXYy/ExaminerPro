@@ -1,7 +1,7 @@
 import subprocess
 import os
 
-encoding = 'T32'
+encoding = 'A64'
 strategy = 'symbolic'
 level = 'system'
 

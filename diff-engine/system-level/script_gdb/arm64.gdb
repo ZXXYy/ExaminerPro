@@ -1,22 +1,21 @@
 set pagination off
 set $cnt=-1
 set $loop=0
-set $testnum=1000
-set $init_addr=0x168
-set $testcase_start_addr=0xec
-set $check_addr=0x20b4
-set $finish_addr=0x20b8
+set $testnum=100000
+set $init_addr=0x158
+set $testcase_start_addr=0xdc
+set $finish_addr=0x1250e8
 set auto-load safe-path /
 
-def get-cpu-state
+define get-cpu-state
     info registers
 end
 
-def get-exception-state
+define get-exception-state
     p /x *regs
 end
 
-def set-testcase-bp
+define set-testcase-bp
     b init_module
     commands
         b do_sp_pc_abort
@@ -61,8 +60,8 @@ def set-testcase-bp
     end
     b inst_location
     commands
-        set $pc = $init_addr + $load_addr + ($loop)*2*4
-        set $prepc = $init_addr + $load_addr + ($loop)*2*4
+        set $pc = $init_addr + $load_addr + ($loop)*3*4
+        set $prepc = $init_addr + $load_addr + ($loop)*3*4
         set $presp = $sp
         set $expcetion = 0
         set logging off
@@ -123,14 +122,14 @@ end
 b do_init_module
 command
     print mod->core_layout.base
-    add-symbol-file kmod/ktemplate.ko mod->core_layout.base
+    add-symbol-file ../../test-generator/test_template/system-level/ktemplate_arm64.ko mod->core_layout.base
     set $load_addr = mod->core_layout.base
     set $cnt=$cnt+1 
     set $expcetion = 0
     continue
 end
 
-add-symbol-file kmod/ktemplate.ko 0x7f000000
+add-symbol-file ../../test-generator/test_template/system-level/ktemplate_arm64.ko 0x7f000000
 set-testcase-bp
 
 target remote localhost:1234
