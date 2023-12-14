@@ -1,6 +1,6 @@
 set pagination off
-set $cnt=7
-set $loop=24271
+set $cnt=-1
+set $loop=0
 set $testnum=100000
 
 set $testcase_start_addr=0xac
@@ -21,7 +21,9 @@ define set-testcase-bp
     commands
         b do_PrefetchAbort
         command
-            
+            printf "-------------------pabt----------------\n"
+            get-exception-state
+            p ifsr
             set addr=$prepc
             set regs->uregs[15]=$prepc
             set $expcetion = 1
@@ -29,13 +31,16 @@ define set-testcase-bp
         end
         b do_DataAbort
         command
-            
+            printf "-------------------dabt----------------\n"
+            get-exception-state
+            p fsr
             set $expcetion = 1
             continue
         end
         b my_undef_inst
         command
-            
+            printf "-------------------und----------------\n"
+            get-exception-state
             set $expcetion = 1
             continue
         end
@@ -53,11 +58,14 @@ define set-testcase-bp
     end
     b inst_location
     commands
-        set $pc = $inst_loc_addr + $load_addr + ($loop)*2*4
-        set $prepc = $inst_loc_addr + $load_addr + ($loop)*2*4
+        set $pc = $inst_loc_addr + $load_addr + ($loop)*3*4
+        set $prepc = $inst_loc_addr + $load_addr + ($loop)*3*4
         set $presp = $sp
         set $expcetion = 0
         set logging off
+        eval "set logging file ./output_virt/%d.output", $cnt*$testnum+$loop
+        set logging overwrite on
+        set logging on
         printf "test case: %d\n", $cnt*$testnum+$loop++
         x/x $pc
         x/x $prepc
@@ -80,10 +88,16 @@ define set-testcase-bp
     b check_memory
     command
         set $r3=$temp
+        printf "===================MEMORY===================\n\n"
+        p/x $r1
         continue
     end
     b finish_location
     command
+        printf "===================FINISH===================\n\n"
+        if $expcetion == 0
+            get-cpu-state
+        end
         if $testnum == $loop
             continue
         else

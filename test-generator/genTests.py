@@ -28,8 +28,12 @@ def kgenerate(mode, binary: bytes, offset: int, offset_mem: int, insts: dict, ou
             outbinary = binary[:offset] 
             temp_offset = offset
             for test_inst in test_insts:
-                outbinary += binary[temp_offset : temp_offset] +test_inst + binary[temp_offset+ARM_INST_LEN : temp_offset + ARM_INST_LEN*2]
-                temp_offset = temp_offset + ARM_INST_LEN*2
+                if mode=='thumb':
+                    outbinary += binary[temp_offset : temp_offset] +test_inst + binary[temp_offset+ARM_INST_LEN : temp_offset + ARM_INST_LEN*2]
+                    temp_offset = temp_offset + ARM_INST_LEN*2
+                else:
+                    outbinary += binary[temp_offset : temp_offset] +test_inst + binary[temp_offset+ARM_INST_LEN : temp_offset + ARM_INST_LEN*3]
+                    temp_offset = temp_offset + ARM_INST_LEN*3
             if dump:
                 outbinary += binary[temp_offset : offset_mem] 
                 temp_offset = offset_mem

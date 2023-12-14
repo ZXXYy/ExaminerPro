@@ -10,7 +10,7 @@ if [ "$1" == "arm" ]; then
 	-kernel /home/zxy/TSE-ExaminerPro/test-generator/build/zImage_arm \
 	-dtb ../build/bcm2709-rpi-2-b.dtb \
 	-initrd ../build/rootfs-arm.cpio.gz -append "root=/dev/mem/ console=ttyAMA0" \
-	-s -nographic -m size=1024
+	-gdb tcp::$2 -nographic -m size=1024
 elif [ "$1" == "thumb" ]; then
 	/home/zxy/qemu/build/qemu-system-arm -M raspi2b -cpu cortex-a7 \
 	-kernel /home/zxy/TSE-ExaminerPro/test-generator/build/zImage_thumb \

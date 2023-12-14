@@ -1,7 +1,7 @@
 import subprocess
 import os
 
-encoding = 'A32'
+encoding = 'T32'
 strategy = 'symbolic'
 level = 'system'
 
@@ -122,5 +122,5 @@ def after_run_system_level_coverage():
     # remove_gcda_files('/home/zxy/qemu/build')
 
 # test_user_level_coverage()
-# test_system_level_coverage()
-after_run_system_level_coverage()
+test_system_level_coverage()
+# after_run_system_level_coverage()

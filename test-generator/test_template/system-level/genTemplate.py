@@ -30,6 +30,7 @@ if __name__ == "__main__":
         if "inst_location:\\n" in line:
             for i in range(testnum):
                 lines.append(templine.format(assembly="nop"))
+                lines.append(templine.format(assembly="nop"))
                 if dumpflag:
                     lines.append(templine.format(assembly="b prepare_dump"))
                 else:
