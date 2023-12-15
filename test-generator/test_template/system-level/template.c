@@ -98,6 +98,29 @@ int init_module(void) {
         "mov x29, #0\n"
         "mov x30, #0\n"
     );
+    #elif __thumb__
+    __asm__ __volatile__(
+        "push {r0-r12}\n"
+        ".global testcase_start\n"
+        "testcase_start:\n"
+        "mov r1, #0x6007\n"
+        "mov r0, #0xb3\n"
+        "orr r0, r0, r1, LSL #16\n"
+        "msr cpsr, r0\n"
+        "mov r0, #0\n"
+        "mov r1, #0\n"
+        "mov r2, #0\n"
+        "mov r3, #0\n"
+        "mov r4, #0\n"
+        "mov r5, #0\n"
+        "mov r6, #0\n"
+        "mov r7, #0\n"
+        "mov r8, #0\n"
+        "mov r9, #0\n"
+        "mov r10, #0\n"
+        "mov r11, #0\n"
+        "mov r12, #0\n"
+    );
     #else
     __asm__ __volatile__(
         "push {r0-r12}\n"

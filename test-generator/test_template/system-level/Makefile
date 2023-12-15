@@ -1,4 +1,5 @@
 KERNEL-DIR-ARM := ~/linux-arm
+KERNEL-DIR-THUMB := ~/linux-thumb
 KERNEL-DIR-ARM64 := ~/linux-arm64
 PWD := $(shell pwd)
 CROSS-ARM := arm-linux-gnueabi-
@@ -15,7 +16,7 @@ build: ktemplate.c ktemplate_dump.c
 	mv ktemplate.ko ktemplate_arm.ko
 	mv ktemplate_dump.ko ktemplate_dump_arm.ko
 
-	make ARCH=arm CROSS_COMPILE=$(CROSS-ARM) KCFLAGS=$(KCFLAGS-THUMB) -C $(KERNEL-DIR-ARM) M=$(PWD) modules
+	make ARCH=arm CROSS_COMPILE=$(CROSS-ARM) KCFLAGS=$(KCFLAGS-THUMB) -C $(KERNEL-DIR-THUMB) M=$(PWD) modules
 	rm .*.cmd *.o *.mod.c  *.mod modules.order Module.symvers
 	mv ktemplate.ko ktemplate_thumb.ko
 	mv ktemplate_dump.ko ktemplate_dump_thumb.ko
@@ -39,6 +40,12 @@ linux-arm:
 	cp $(KERNEL-DIR-ARM)/arch/arm/boot/zImage $(PWD)/../../build/zImage_arm
 	cp $(KERNEL-DIR-ARM)/vmlinux  $(PWD)/../../build/vmlinux_arm
 
+linux-thumb: 
+	cd $(KERNEL-DIR-THUMB) && \
+	make ARCH=arm CROSS_COMPILE=$(CROSS-ARM) bcm2709_defconfig && \
+	make ARCH=arm CROSS_COMPILE=$(CROSS-ARM) KCFLAGS=$(KCFLAGS-THUMB)
+	cp $(KERNEL-DIR-THUMB)/arch/arm/boot/zImage $(PWD)/../../build/zImage_thumb
+	cp $(KERNEL-DIR-THUMB)/vmlinux  $(PWD)/../../build/vmlinux_thumb
 
 linux-arm64: 
 	cd $(KERNEL-DIR-ARM64) && \

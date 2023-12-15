@@ -15,7 +15,10 @@ cur_dir=$(pwd)
 testcase_dir="/home/zxy/TSE-ExaminerPro/analyzer/RQ1-test-sufficiency/testcases-system-$3"
 target_dir="$cur_dir/../build/rootfs-$3"
 
-cp -r "$testcase_dir" "$target_dir"
+# cp -r "$testcase_dir" "$target_dir"
+cp /home/zxy/TSE-ExaminerPro/test-generator/test_template/system-level/ktemplate_thumb.ko "$target_dir"
+cp /home/zxy/TSE-ExaminerPro/test-generator/test_template/system-level/ktemplate_arm.ko "$target_dir"
+
 cd "$target_dir"
 find . -print0 | cpio --null -ov --format=newc | gzip -9 > ../rootfs-$3.cpio.gz
 # cp -r "$ROOT/build/testcases/top.sh" "$ROOT/build/rootfs"
