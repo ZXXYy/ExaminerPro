@@ -1,7 +1,7 @@
 import subprocess
 import os
 
-encoding = 'T32'
+encoding = 'T16'
 strategy = 'random'
 level = 'system'
 
@@ -96,7 +96,10 @@ def test_system_level_coverage():
         if not os.path.exists('/home/zxy/TSE-ExaminerPro/diff-engine/system-level/output_virt'):
             os.mkdir(f'/home/zxy/TSE-ExaminerPro/diff-engine/system-level/output_virt')
         subprocess.run(['python3', "../../test-generator/pickleInsts.py"] + system_scripts["../../test-generator/pickleInsts.py"], check=True)
-        subprocess.run(['python3', "../../test-generator/filterInstsSystem.py"] + system_scripts["../../test-generator/filterInstsSystem.py"], check=True)
+        if encoding == 'T16':
+            subprocess.run(['mv', f'pickled_{temp}', f'pickled_normal_insts_{encoding}'], check=True)
+        else:
+            subprocess.run(['python3', "../../test-generator/filterInstsSystem.py"] + system_scripts["../../test-generator/filterInstsSystem.py"], check=True)
         subprocess.run(['python3', "../../test-generator/genTests.py"] + system_scripts["../../test-generator/genTests.py"], check=True)
     except subprocess.CalledProcessError as e:
         print(f"Error running: {e}")
@@ -107,7 +110,7 @@ def after_run_system_level_coverage():
     else:
         inputfile = f'./{strategy}/{encoding}/{encoding}_0.txt'
     temp = inputfile.split('/')[-1]
-    subprocess.run(['rm', f'pickled_{temp}'], check=True)
+    # subprocess.run(['rm', f'pickled_{temp}'], check=True)
     subprocess.run(['rm', f'pickled_normal_insts_{encoding}'], check=True)
     subprocess.run(['rm', '-r', f'./testcases-{level}-{mode}/'], check=True)
     subprocess.run(['rm', '-r', '/home/zxy/TSE-ExaminerPro/diff-engine/system-level/output_virt'], check=True)
@@ -119,8 +122,8 @@ def after_run_system_level_coverage():
         get_coverage_info('/home/zxy/qemu/build/libqemu-arm-softmmu.fa.p', strategy, level, encoding, False)
     get_coverage_info('/home/zxy/qemu/build', strategy, level, encoding, True)
     # clear gcda data
-    # remove_gcda_files('/home/zxy/qemu/build')
+    remove_gcda_files('/home/zxy/qemu/build')
 
 # test_user_level_coverage()
-test_system_level_coverage()
-# after_run_system_level_coverage()
+# test_system_level_coverage()
+after_run_system_level_coverage()

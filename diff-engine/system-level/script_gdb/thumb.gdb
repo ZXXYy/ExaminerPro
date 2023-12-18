@@ -21,9 +21,7 @@ define set-testcase-bp
     commands
         b do_PrefetchAbort
         command
-            printf "-------------------pabt----------------\n"
-            get-exception-state
-            p ifsr
+            printf "test case: %d\n", $cnt*$testnum+$loop
             set addr=$prepc
             set regs->uregs[15]=$prepc
             set $expcetion = 1
@@ -31,29 +29,17 @@ define set-testcase-bp
         end
         b do_DataAbort
         command
-            printf "-------------------dabt----------------\n"
-            get-exception-state
-            p fsr
+            printf "test case: %d\n", $cnt*$testnum+$loop
             set $expcetion = 1
             continue
         end
         b my_undef_inst
         command
-            printf "-------------------und----------------\n"
-            get-exception-state
+            printf "test case: %d\n", $cnt*$testnum+$loop
             set $expcetion = 1
             continue
         end
-        b prefetch_success
-        command
-            set regs->uregs[15]=$prepc+4
-            continue
-        end
-        b data_success
-        command
-            set regs->uregs[15]=$prepc+4
-            continue
-        end
+       
         continue
     end
     b inst_location
@@ -62,10 +48,7 @@ define set-testcase-bp
         set $prepc = $inst_loc_addr + $load_addr + ($loop)*2*4
         set $presp = $sp
         set $expcetion = 0
-        set logging off
-        eval "set logging file ./output_virt/%d.output", $cnt*$testnum+$loop
-        set logging overwrite on
-        set logging on
+        
         printf "test case: %d\n", $cnt*$testnum+$loop++
         x/x $pc
         x/x $prepc
@@ -94,10 +77,6 @@ define set-testcase-bp
     end
     b finish_location
     command
-        printf "===================FINISH===================\n\n"
-        if $expcetion == 0
-            get-cpu-state
-        end
         if $testnum == $loop
             continue
         else

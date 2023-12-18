@@ -16,7 +16,7 @@ elif [ "$1" == "thumb" ]; then
 	-kernel /home/zxy/TSE-ExaminerPro/test-generator/build/zImage_thumb \
 	-dtb ../build/bcm2709-rpi-2-b.dtb \
 	-initrd ../build/rootfs-thumb.cpio.gz -append "root=/dev/mem/ console=ttyAMA0" \
-	-s -nographic -m size=1024
+	-gdb tcp::$2 -nographic -m size=1024
 elif [ "$1" == "arm64" ]; then
 	/home/zxy/qemu/build/qemu-system-aarch64 -M virt \
 	-kernel /home/zxy/TSE-ExaminerPro/test-generator/build/zImage_arm64 \
