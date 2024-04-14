@@ -34,7 +34,8 @@ cd analyzer/RQ1-test-sufficiency/
 # you can specify the encodings, strategies, privileges in the coverage.py
 python3 coverage.py
 ```
-For further convenience, we published our test cases of three strategies in zip file under /data directory. 
+For further convenience, we published our test cases of three strategies in zip file in Google Drive.
+Please download data in the [link](https://drive.google.com/file/d/1Zr5DtvM2GzOK0tb8EqZNk370xgIQI2lD/view?usp=sharing). 
 
 #### Differential Testing Engine
 All codes related to differential testing engine is under `/diff-engine`.
@@ -48,7 +49,7 @@ All codes related to differential testing engine is under `/diff-engine`.
     tar xf busybox-1.24.2.tar.bz2
     ./compile_busybox.sh
     ```
-    2. Use the modified linux image in our /data directory.
+    2. Use the modified linux image in the [link](https://drive.google.com/file/d/1Zr5DtvM2GzOK0tb8EqZNk370xgIQI2lD/view?usp=sharing).
     3. Copy the generated test kernel module into the root file system, and run `gen_rootfs.sh` to generate the rootfs-xxx.cpio.gz
     4. `run_qemu.sh <arch>` to start the qemu
     5. `run_gdb.sh <arch> ` to trace the execution results
