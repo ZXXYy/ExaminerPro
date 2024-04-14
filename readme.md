@@ -3,9 +3,9 @@ Emulators are commonly employed to construct dynamic analysis frameworks due to 
 
 We target the Arm architecture, which provides machine-readable specifications. Based on the specification, we propose a sufficient test case generator by designing and implementing the first symbolic execution engine for the Arm architecture specification language (ASL). 
 
-We generated 2,774,649 representative instruction streams and developed a differential testing engine, \ksysname. With this engine, we compared the behavior of real Arm devices across different instruction sets (A32, A64, T16, and T32) with the popular QEMU emulator, both at the user-level and system-level. To demonstrate the generalizability of \ksysname, we also tested two other emulators, namely Unicorn and Angr. We find that undefined implementation in Arm manual and bugs of emulators are the major causes of inconsistencies. 
+We generated 2,774,649 representative instruction streams and developed a differential testing engine, Examiner Pro. With this engine, we compared the behavior of real Arm devices across different instruction sets (A32, A64, T16, and T32) with the popular QEMU emulator, both at the user-level and system-level. To demonstrate the generalizability of Examiner Pro, we also tested two other emulators, namely Unicorn and Angr. We find that undefined implementation in Arm manual and bugs of emulators are the major causes of inconsistencies. 
 
-Furthermore, we discover 17 bugs, which influence commonly used instructions (e.g.,  \code{BLX}). With the inconsistent instructions, we build three security applications and demonstrate the capability of these instructions on detecting emulators, anti-emulation, and anti-fuzzing.
+Furthermore, we discover 17 bugs, which influence commonly used instructions (e.g.,  `BLX`). With the inconsistent instructions, we build three security applications and demonstrate the capability of these instructions on detecting emulators, anti-emulation, and anti-fuzzing.
 
 ### Reproduce the Results
 - Requirements:
