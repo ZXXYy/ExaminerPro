@@ -8,3 +8,7 @@ testcase*/
 state_qemu/
 timeout_qemu
 ./*.info
+*.json
+*.info
+*.coverage
+*.out

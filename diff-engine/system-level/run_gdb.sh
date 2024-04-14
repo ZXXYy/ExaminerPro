@@ -8,4 +8,4 @@ DUMP_SCRIPT="$1"
 cur_dir=$(pwd)
 vmlinux_path=$cur_dir/../../test-generator/build/vmlinux_$1
 
-gdb-multiarch $vmlinux_path --command="./script_gdb/${DUMP_SCRIPT}_$2.gdb"
+gdb-multiarch $vmlinux_path --command="./script_gdb/${DUMP_SCRIPT}.gdb"

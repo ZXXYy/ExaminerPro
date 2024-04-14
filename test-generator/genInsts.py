@@ -2383,23 +2383,27 @@ def generate_specific_insts(instrs,inst_mode,inst_name):
 def random_valid_insts(instrs,input_file,output_file,inst_set):
     f = open(input_file,"r")
     lines = f.readlines()
+    lines = list(set(lines))
+    print(len(lines))
     f.close()
     f_v = open(output_file,"w")
-    for i in tqdm(instrs):
-        for (inm, insn_set, fields, dec) in i.encs:
-            if insn_set != inst_set:
-                continue
-            instencoding = InstEncoding(inm,i.post,fields,dec,i.exec)
-            for l in lines:
+    for l in tqdm(lines):
+        for i in instrs:
+            for (inm, insn_set, fields, dec) in i.encs:
+                if insn_set != inst_set:
+                    continue
+                instencoding = InstEncoding(inm,i.post,fields,dec,i.exec)
                 if instencoding.isThisEncoding(l.strip()):
                     f_v.write(l)
                     logging.debug("identified %s %s\n"%(inm, l.strip()))
-                    lines.remove(l)
+                    # lines.remove(l)
+                    break
     f_v.close()  
 
 def random_symbols_valid_insts(instrs,input_file,output_file,inst_set):
     f = open(input_file,"r")
     lines = f.readlines()
+    lines = list(set(lines))
     print(len(lines))
     f.close()
     f_v = open(output_file,"w")
@@ -2843,7 +2847,10 @@ if __name__ == "__main__":
     instrs, encoding, strategy = main()
 
     if strategy == "random":
-        generate_insts_from_random(instrs, f"{encoding}_orig.txt", encoding)    
+        start_time = time.time()
+        generate_insts_from_random(instrs, f"{encoding}_orig.txt", encoding)  
+        end_time = time.time()
+        logging.info(f"generate random instructions time: {end_time-start_time}")  
         random_valid_insts(instrs, f"{encoding}_orig.txt", f"{encoding}.txt", encoding)
         covered_constraints(
             instrs,
@@ -2853,18 +2860,24 @@ if __name__ == "__main__":
         )
        
     elif strategy == "symbolic":
+        start_time = time.time()
         generate_insts_from_asl(instrs, f"{encoding}_orig.txt", encoding)
-        filter_duplicates(f"{encoding}_orig.txt", f"{encoding}_orig.txt")
-        if encoding != "A64":
-            filter_orig_a32(instrs,f"{encoding}_orig.txt",f"{encoding}_filter.txt",encoding)
-            covered_constraints(instrs, f"{encoding}_filter.txt",f"{encoding}_filter_constraints.json", encoding)
+        end_time = time.time()
+        logging.info(f"generate instructions time: {end_time-start_time}")  
+        # filter_duplicates(f"{encoding}_orig.txt", f"{encoding}_orig.txt")
+        # if encoding != "A64":
+        #     filter_orig_a32(instrs,f"{encoding}_orig.txt",f"{encoding}_filter.txt",encoding)
+        #     covered_constraints(instrs, f"{encoding}_filter.txt",f"{encoding}_filter_constraints.json", encoding)
 
-        shutil.copy2(f"{encoding}_orig.txt", f"{encoding}.txt")
-        covered_constraints(instrs, f"{encoding}.txt",f"{encoding}_constraints.json", encoding)
+        # shutil.copy2(f"{encoding}_orig.txt", f"{encoding}.txt")
+        # covered_constraints(instrs, f"{encoding}.txt",f"{encoding}_constraints.json", encoding)
         
         
     elif strategy == "random-symbols":
+        start_time = time.time()
         generate_randomsymbols_insts(instrs, f"{encoding}_orig.txt", encoding)
+        end_time = time.time()
+        logging.info(f"generate instructions time: {end_time-start_time}")  
         random_symbols_valid_insts(instrs, f"{encoding}_orig.txt", f"{encoding}.txt", encoding)
         covered_constraints(instrs, f"{encoding}.txt",f"{encoding}_constraints.json", encoding)
     
